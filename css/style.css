@@ -938,3 +938,63 @@
     background: #3a3a5a;
     color: white;
 }
+
+/* СВЯЗЫВАНИЕ ТЕМ */
+.topic-link-btn {
+    width: 26px;
+    height: 26px;
+    background: #667eea;
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 12px;
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.topic-link-btn:hover {
+    background: #7b8ef0;
+    transform: scale(1.1);
+}
+
+.topic-link-btn:active {
+    cursor: grabbing;
+}
+
+.link-line-svg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.topic-platform-links-svg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.topic-link-line {
+    stroke: #667eea;
+    stroke-width: 2;
+    fill: none;
+    opacity: 0.7;
+}
+
+.topic-link-line-temp {
+    stroke: #667eea;
+    stroke-width: 2;
+    stroke-dasharray: 5,5;
+    fill: none;
+}

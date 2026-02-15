@@ -435,11 +435,13 @@
                             </div>
                         </div>
                         <div class="topic-actions">
+                            <button class="topic-link-btn" onmousedown="startLinking(event, this)" title="Связать с платформой">→</button>
                             <button class="btn-accept" onclick="acceptTopic(this)" title="Принять">✓</button>
                             <button class="btn-maybe" onclick="maybeTopic(this)" title="Возможно">?</button>
                             <button class="btn-reject" onclick="rejectTopic(this)" title="Удалить">✕</button>
                         </div>
                     `;
+                    item.dataset.topicId = 'topic-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5);
                     list.appendChild(item);
                 });
             } else {
@@ -531,11 +533,13 @@
                             </div>
                         </div>
                         <div class="topic-actions">
+                            <button class="topic-link-btn" onmousedown="startLinking(event, this)" title="Связать с платформой">→</button>
                             <button class="btn-accept" onclick="acceptTopic(this)" title="Принять">✓</button>
                             <button class="btn-maybe" onclick="maybeTopic(this)" title="Возможно">?</button>
                             <button class="btn-reject" onclick="rejectTopic(this)" title="Удалить">✕</button>
                         </div>
                     `;
+                    item.dataset.topicId = 'topic-' + Date.now() + '-' + index;
                     list.appendChild(item);
                     saveState();
                 }, index * 150);
@@ -1395,3 +1399,146 @@
             reader.readAsText(file);
             input.value = '';
         }
+
+        // ===== СВЯЗЫВАНИЕ ТЕМ С ПЛАТФОРМАМИ =====
+        let topicPlatformLinks = [];
+        let isLinking = false;
+        let linkingSvg = null;
+        let linkingTopicId = null;
+        let linkingTopicText = '';
+        let linkStartX, linkStartY;
+
+        function loadTopicLinks() {
+            const saved = localStorage.getItem('instaGeneratorTopicLinks');
+            if (saved) {
+                topicPlatformLinks = JSON.parse(saved);
+            }
+        }
+
+        function saveTopicLinks() {
+            localStorage.setItem('instaGeneratorTopicLinks', JSON.stringify(topicPlatformLinks));
+        }
+
+        function startLinking(e, btn) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const topicItem = btn.closest('.topic-item');
+            linkingTopicId = topicItem.dataset.topicId || Date.now().toString();
+            topicItem.dataset.topicId = linkingTopicId;
+            
+            const topicText = topicItem.querySelector('.topic-text');
+            linkingTopicText = topicText.textContent;
+            
+            const rect = btn.getBoundingClientRect();
+            linkStartX = rect.left + rect.width / 2;
+            linkStartY = rect.top + rect.height / 2;
+            
+            // Создаём временную SVG линию
+            linkingSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            linkingSvg.classList.add('link-line-svg');
+            linkingSvg.innerHTML = '<line class="topic-link-line-temp" x1="' + linkStartX + '" y1="' + linkStartY + '" x2="' + linkStartX + '" y2="' + linkStartY + '"/>';
+            document.body.appendChild(linkingSvg);
+            
+            isLinking = true;
+        }
+
+        // Обработчик движения мыши для связывания
+        document.addEventListener('mousemove', function(e) {
+            if (isLinking && linkingSvg) {
+                const line = linkingSvg.querySelector('line');
+                line.setAttribute('x2', e.clientX);
+                line.setAttribute('y2', e.clientY);
+            }
+        });
+
+        // Обработчик отпускания мыши для связывания
+        document.addEventListener('mouseup', function(e) {
+            if (isLinking) {
+                // Проверяем, над какой карточкой платформы
+                const platformCard = document.elementFromPoint(e.clientX, e.clientY)?.closest('.platform-card');
+                
+                if (platformCard) {
+                    const platformId = platformCard.id;
+                    const platformName = platformCard.querySelector('.platform-name')?.textContent || '';
+                    
+                    // Добавляем связь
+                    topicPlatformLinks.push({
+                        topicId: linkingTopicId,
+                        topicText: linkingTopicText,
+                        platformId: platformId,
+                        platformName: platformName
+                    });
+                    
+                    saveTopicLinks();
+                    renderTopicLinks();
+                }
+                
+                // Убираем временную линию
+                if (linkingSvg) {
+                    linkingSvg.remove();
+                    linkingSvg = null;
+                }
+                
+                isLinking = false;
+                linkingTopicId = null;
+                linkingTopicText = '';
+            }
+        });
+
+        function renderTopicLinks() {
+            const svg = document.getElementById('topicPlatformLinksSvg');
+            if (!svg) return;
+            svg.innerHTML = '';
+            
+            topicPlatformLinks.forEach((link, index) => {
+                const topicItem = document.querySelector('[data-topic-id="' + link.topicId + '"]');
+                const platformCard = document.getElementById(link.platformId);
+                
+                if (topicItem && platformCard) {
+                    const topicRect = topicItem.getBoundingClientRect();
+                    const platformRect = platformCard.getBoundingClientRect();
+                    
+                    const x1 = topicRect.right;
+                    const y1 = topicRect.top + topicRect.height / 2;
+                    const x2 = platformRect.left;
+                    const y2 = platformRect.top + platformRect.height / 2;
+                    
+                    // Кривая Безье
+                    const midX = (x1 + x2) / 2;
+                    
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    path.setAttribute('d', 'M ' + x1 + ' ' + y1 + ' C ' + midX + ' ' + y1 + ', ' + midX + ' ' + y2 + ', ' + x2 + ' ' + y2);
+                    path.setAttribute('class', 'topic-link-line');
+                    path.dataset.linkIndex = index;
+                    path.style.cursor = 'pointer';
+                    path.onclick = function() {
+                        if (confirm('Удалить связь?')) {
+                            topicPlatformLinks.splice(index, 1);
+                            saveTopicLinks();
+                            renderTopicLinks();
+                        }
+                    };
+                    path.style.pointerEvents = 'stroke';
+                    svg.appendChild(path);
+                }
+            });
+        }
+
+        // Обновляем связи при перемещении карточек
+        const originalMouseMove = document.onmousemove;
+        document.addEventListener('mousemove', function() {
+            if (draggedCard || resizingCard) {
+                renderTopicLinks();
+            }
+        });
+
+        // Загружаем связи при старте
+        window.addEventListener('DOMContentLoaded', function() {
+            loadTopicLinks();
+            setTimeout(renderTopicLinks, 500);
+        });
+
+        // Обновляем связи при скролле
+        window.addEventListener('scroll', renderTopicLinks);
+        document.querySelector('.left-panel')?.addEventListener('scroll', renderTopicLinks);
