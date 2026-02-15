@@ -1513,6 +1513,18 @@
             if (!svg) return;
             svg.innerHTML = '';
             
+            // Добавляем маркер стрелки
+            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            defs.innerHTML = `
+                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#667eea"/>
+                </marker>
+                <marker id="arrowhead-hover" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#e74c3c"/>
+                </marker>
+            `;
+            svg.appendChild(defs);
+            
             topicPlatformLinks.forEach((link, index) => {
                 const topicItem = document.querySelector('[data-topic-id="' + link.topicId + '"]');
                 const platformCard = document.getElementById(link.platformId);
@@ -1532,8 +1544,17 @@
                     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                     path.setAttribute('d', 'M ' + x1 + ' ' + y1 + ' C ' + midX + ' ' + y1 + ', ' + midX + ' ' + y2 + ', ' + x2 + ' ' + y2);
                     path.setAttribute('class', 'topic-link-line');
+                    path.setAttribute('marker-end', 'url(#arrowhead)');
                     path.dataset.linkIndex = index;
-                    path.style.cursor = 'pointer';
+                    
+                    // Hover эффект для стрелки
+                    path.onmouseenter = function() {
+                        path.setAttribute('marker-end', 'url(#arrowhead-hover)');
+                    };
+                    path.onmouseleave = function() {
+                        path.setAttribute('marker-end', 'url(#arrowhead)');
+                    };
+                    
                     path.onclick = function() {
                         if (confirm('Удалить связь?')) {
                             topicPlatformLinks.splice(index, 1);
