@@ -59,46 +59,66 @@
             
             projects.forEach(project => {
                 const isActive = project.id === currentProjectId;
+                
+                // Обёртка для проекта + недель
+                const wrapper = document.createElement('div');
+                wrapper.className = 'project-item-wrapper' + (isActive ? ' expanded' : '');
+                
                 const item = document.createElement('div');
                 item.className = 'project-item' + (isActive ? ' active' : '');
                 item.innerHTML = `
                     <span class="icon">📁</span>
                     <span class="name">${project.name}</span>
                     ${projects.length > 1 ? '<span class="delete" onclick="event.stopPropagation(); deleteProject(' + project.id + ')">✕</span>' : ''}
+                    <span class="expand-arrow">▶</span>
                 `;
-                item.onclick = () => switchProject(project.id);
-                list.appendChild(item);
-                
-                // Показываем недели для активного проекта
-                if (isActive) {
-                    const weeksDiv = document.createElement('div');
-                    weeksDiv.className = 'project-weeks';
-                    
-                    const projWeeks = project.totalWeeks || 4;
-                    for (let i = 1; i <= projWeeks; i++) {
-                        const weekItem = document.createElement('div');
-                        weekItem.className = 'week-item' + (i === currentWeek ? ' active' : '');
-                        weekItem.innerHTML = '📅 ' + getWeekName(i);
-                        weekItem.onclick = (e) => {
-                            e.stopPropagation();
-                            switchWeek(i);
-                            toggleProjectDropdown();
-                        };
-                        weeksDiv.appendChild(weekItem);
+                item.onclick = (e) => {
+                    if (isActive) {
+                        // Если уже активный — сворачиваем/разворачиваем
+                        wrapper.classList.toggle('expanded');
+                    } else {
+                        // Переключаемся на проект
+                        switchProject(project.id);
                     }
-                    
-                    // Кнопка добавить неделю
-                    const addWeekItem = document.createElement('div');
-                    addWeekItem.className = 'week-add';
-                    addWeekItem.innerHTML = '➕ Добавить неделю';
-                    addWeekItem.onclick = (e) => {
+                };
+                wrapper.appendChild(item);
+                
+                // Недели (всегда добавляем, но скрыты если не expanded)
+                const weeksDiv = document.createElement('div');
+                weeksDiv.className = 'project-weeks';
+                
+                const projWeeks = project.totalWeeks || 4;
+                for (let i = 1; i <= projWeeks; i++) {
+                    const weekItem = document.createElement('div');
+                    const isWeekActive = isActive && i === currentWeek;
+                    weekItem.className = 'week-item' + (isWeekActive ? ' active' : '');
+                    weekItem.innerHTML = '📅 ' + getWeekName(i);
+                    weekItem.onclick = (e) => {
                         e.stopPropagation();
-                        addWeek();
+                        if (!isActive) {
+                            switchProject(project.id);
+                        }
+                        switchWeek(i);
+                        toggleProjectDropdown();
                     };
-                    weeksDiv.appendChild(addWeekItem);
-                    
-                    list.appendChild(weeksDiv);
+                    weeksDiv.appendChild(weekItem);
                 }
+                
+                // Кнопка добавить неделю
+                const addWeekItem = document.createElement('div');
+                addWeekItem.className = 'week-add';
+                addWeekItem.innerHTML = '➕ Добавить неделю';
+                addWeekItem.onclick = (e) => {
+                    e.stopPropagation();
+                    if (!isActive) {
+                        switchProject(project.id);
+                    }
+                    addWeek();
+                };
+                weeksDiv.appendChild(addWeekItem);
+                
+                wrapper.appendChild(weeksDiv);
+                list.appendChild(wrapper);
             });
         }
 

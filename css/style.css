@@ -81,52 +81,70 @@
         }
 
         /* НЕДЕЛИ В ПРОЕКТЕ */
-        .project-weeks {
-            border-top: 1px solid #3a3a5a;
-            margin-top: 5px;
-            padding-top: 5px;
+        .project-item-wrapper {
+            border-bottom: 1px solid #2a2a4a;
         }
 
-        .project-weeks-title {
-            padding: 8px 15px;
-            font-size: 11px;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .project-item-wrapper:last-child {
+            border-bottom: none;
+        }
+
+        .project-item .expand-arrow {
+            font-size: 10px;
+            transition: transform 0.2s;
+            margin-left: auto;
+            opacity: 0.5;
+        }
+
+        .project-item-wrapper.expanded .expand-arrow {
+            transform: rotate(90deg);
+        }
+
+        .project-weeks {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: #1a1a2e;
+        }
+
+        .project-item-wrapper.expanded .project-weeks {
+            max-height: 500px;
         }
 
         .week-item {
-            padding: 10px 15px 10px 25px;
+            padding: 8px 15px 8px 35px;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 8px;
             transition: background 0.2s;
-            font-size: 13px;
+            font-size: 12px;
+            color: #aaa;
         }
 
         .week-item:hover {
-            background: #3a3a5a;
+            background: #252542;
+            color: white;
         }
 
         .week-item.active {
-            background: #667eea33;
+            background: #667eea22;
             color: #667eea;
         }
 
         .week-add {
-            padding: 10px 15px 10px 25px;
+            padding: 8px 15px 8px 35px;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 8px;
             color: #667eea;
-            font-size: 13px;
+            font-size: 12px;
             transition: background 0.2s;
         }
 
         .week-add:hover {
-            background: #3a3a5a;
+            background: #252542;
         }
 
 
