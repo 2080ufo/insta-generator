@@ -1663,3 +1663,176 @@
         // Обновляем связи при скролле
         window.addEventListener('scroll', renderTopicLinks);
         document.querySelector('.left-panel')?.addEventListener('scroll', renderTopicLinks);
+
+        // ===== ЛОКАЛИЗАЦИЯ ИНТЕРФЕЙСА =====
+        const translations = {
+            ru: {
+                topicsTitle: '🎯 Темы для постов',
+                contextLabel: '📋 Контекст для генерации',
+                contextPlaceholder: 'Опишите ваш бизнес, направление, целевую аудиторию...',
+                mainLangLabel: '🌐 Основной язык',
+                aiModelLabel: '🤖 AI модель',
+                generateBtn: '✨ Сгенерировать темы',
+                emptyState: 'Нажмите кнопку выше,<br>чтобы сгенерировать темы',
+                addPlatformTitle: 'Добавить платформу',
+                addWeek: '➕ Добавить неделю',
+                deleteConfirm: 'Удалить связь?',
+                deleteProject: 'Удалить этот проект?',
+                projectName: 'Название проекта:',
+                exportSuccess: '✅ Данные экспортированы!',
+                importSuccess: '✅ Данные импортированы! Страница перезагрузится.',
+                importError: '❌ Ошибка при импорте: ',
+                file: '📎 Файл',
+                image: '🖼 Картинка',
+                audio: '🎵 Аудио',
+                link: '🔗 Ссылка'
+            },
+            en: {
+                topicsTitle: '🎯 Topics for posts',
+                contextLabel: '📋 Generation context',
+                contextPlaceholder: 'Describe your business, niche, target audience...',
+                mainLangLabel: '🌐 Main language',
+                aiModelLabel: '🤖 AI model',
+                generateBtn: '✨ Generate topics',
+                emptyState: 'Click the button above<br>to generate topics',
+                addPlatformTitle: 'Add platform',
+                addWeek: '➕ Add week',
+                deleteConfirm: 'Delete link?',
+                deleteProject: 'Delete this project?',
+                projectName: 'Project name:',
+                exportSuccess: '✅ Data exported!',
+                importSuccess: '✅ Data imported! Page will reload.',
+                importError: '❌ Import error: ',
+                file: '📎 File',
+                image: '🖼 Image',
+                audio: '🎵 Audio',
+                link: '🔗 Link'
+            },
+            de: {
+                topicsTitle: '🎯 Themen für Beiträge',
+                contextLabel: '📋 Kontext für die Generierung',
+                contextPlaceholder: 'Beschreiben Sie Ihr Geschäft, Ihre Nische, Ihre Zielgruppe...',
+                mainLangLabel: '🌐 Hauptsprache',
+                aiModelLabel: '🤖 KI-Modell',
+                generateBtn: '✨ Themen generieren',
+                emptyState: 'Klicken Sie auf die Schaltfläche oben,<br>um Themen zu generieren',
+                addPlatformTitle: 'Plattform hinzufügen',
+                addWeek: '➕ Woche hinzufügen',
+                deleteConfirm: 'Verbindung löschen?',
+                deleteProject: 'Dieses Projekt löschen?',
+                projectName: 'Projektname:',
+                exportSuccess: '✅ Daten exportiert!',
+                importSuccess: '✅ Daten importiert! Seite wird neu geladen.',
+                importError: '❌ Importfehler: ',
+                file: '📎 Datei',
+                image: '🖼 Bild',
+                audio: '🎵 Audio',
+                link: '🔗 Link'
+            },
+            es: {
+                topicsTitle: '🎯 Temas para publicaciones',
+                contextLabel: '📋 Contexto de generación',
+                contextPlaceholder: 'Describe tu negocio, nicho, público objetivo...',
+                mainLangLabel: '🌐 Idioma principal',
+                aiModelLabel: '🤖 Modelo de IA',
+                generateBtn: '✨ Generar temas',
+                emptyState: 'Haz clic en el botón de arriba<br>para generar temas',
+                addPlatformTitle: 'Agregar plataforma',
+                addWeek: '➕ Agregar semana',
+                deleteConfirm: '¿Eliminar enlace?',
+                deleteProject: '¿Eliminar este proyecto?',
+                projectName: 'Nombre del proyecto:',
+                exportSuccess: '✅ ¡Datos exportados!',
+                importSuccess: '✅ ¡Datos importados! La página se recargará.',
+                importError: '❌ Error de importación: ',
+                file: '📎 Archivo',
+                image: '🖼 Imagen',
+                audio: '🎵 Audio',
+                link: '🔗 Enlace'
+            },
+            uk: {
+                topicsTitle: '🎯 Теми для постів',
+                contextLabel: '📋 Контекст для генерації',
+                contextPlaceholder: 'Опишіть ваш бізнес, напрямок, цільову аудиторію...',
+                mainLangLabel: '🌐 Основна мова',
+                aiModelLabel: '🤖 AI модель',
+                generateBtn: '✨ Згенерувати теми',
+                emptyState: 'Натисніть кнопку вище,<br>щоб згенерувати теми',
+                addPlatformTitle: 'Додати платформу',
+                addWeek: '➕ Додати тиждень',
+                deleteConfirm: 'Видалити зв\'язок?',
+                deleteProject: 'Видалити цей проект?',
+                projectName: 'Назва проекту:',
+                exportSuccess: '✅ Дані експортовано!',
+                importSuccess: '✅ Дані імпортовано! Сторінка перезавантажиться.',
+                importError: '❌ Помилка імпорту: ',
+                file: '📎 Файл',
+                image: '🖼 Зображення',
+                audio: '🎵 Аудіо',
+                link: '🔗 Посилання'
+            }
+        };
+
+        let currentInterfaceLang = 'ru';
+
+        function t(key) {
+            return translations[currentInterfaceLang]?.[key] || translations['ru'][key] || key;
+        }
+
+        function changeInterfaceLang(lang) {
+            currentInterfaceLang = lang;
+            localStorage.setItem('interfaceLang', lang);
+            applyTranslations();
+        }
+
+        function applyTranslations() {
+            // Заголовок тем
+            const panelTitle = document.querySelector('.panel-title');
+            if (panelTitle) panelTitle.textContent = t('topicsTitle');
+            
+            // Контекст
+            const contextLabels = document.querySelectorAll('.context-label');
+            if (contextLabels[0]) contextLabels[0].textContent = t('contextLabel');
+            if (contextLabels[1]) contextLabels[1].textContent = t('mainLangLabel');
+            if (contextLabels[2]) contextLabels[2].textContent = t('aiModelLabel');
+            
+            const contextInput = document.getElementById('contextInput');
+            if (contextInput) contextInput.placeholder = t('contextPlaceholder');
+            
+            // Кнопка генерации
+            const generateBtn = document.querySelector('.generate-btn');
+            if (generateBtn) generateBtn.textContent = t('generateBtn');
+            
+            // Кнопки прикрепления
+            const attachBtns = document.querySelectorAll('.attach-btn');
+            if (attachBtns[0]) attachBtns[0].textContent = t('file');
+            if (attachBtns[1]) attachBtns[1].textContent = t('image');
+            if (attachBtns[2]) attachBtns[2].textContent = t('audio');
+            if (attachBtns[3]) attachBtns[3].textContent = t('link');
+            
+            // Добавить платформу
+            const platformTitle = document.querySelector('.platform-picker-title');
+            if (platformTitle) platformTitle.textContent = t('addPlatformTitle');
+            
+            // Empty state
+            const emptyState = document.querySelector('.empty-state');
+            if (emptyState) {
+                const span = emptyState.querySelector('span');
+                if (span) {
+                    emptyState.innerHTML = '<span>💡</span>' + t('emptyState');
+                }
+            }
+        }
+
+        function loadInterfaceLang() {
+            const saved = localStorage.getItem('interfaceLang');
+            if (saved) {
+                currentInterfaceLang = saved;
+                document.getElementById('interfaceLangSelect').value = saved;
+            }
+            applyTranslations();
+        }
+
+        window.addEventListener('DOMContentLoaded', function() {
+            setTimeout(loadInterfaceLang, 100);
+        });

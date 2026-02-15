@@ -953,6 +953,27 @@
     color: white;
 }
 
+/* ЯЗЫК ИНТЕРФЕЙСА */
+.interface-lang {
+    margin-left: 15px;
+}
+
+.interface-lang select {
+    background: #252542;
+    border: 1px solid #3a3a5a;
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: #aaa;
+    font-size: 12px;
+    cursor: pointer;
+    outline: none;
+}
+
+.interface-lang select:hover {
+    background: #3a3a5a;
+    color: white;
+}
+
 /* СВЯЗЫВАНИЕ ТЕМ */
 .topic-link-btn {
     width: 22px;

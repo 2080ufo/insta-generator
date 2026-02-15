@@ -26,6 +26,17 @@
         
         <div class="week-indicator" id="weekIndicator">📅 Первая неделя</div>
         
+        <!-- Язык интерфейса -->
+        <div class="interface-lang">
+            <select id="interfaceLangSelect" onchange="changeInterfaceLang(this.value)">
+                <option value="ru">🇷🇺 RU</option>
+                <option value="en">🇺🇸 EN</option>
+                <option value="de">🇩🇪 DE</option>
+                <option value="es">🇪🇸 ES</option>
+                <option value="uk">🇺🇦 UA</option>
+            </select>
+        </div>
+        
         <!-- Кнопки синхронизации -->
         <div class="sync-buttons">
             <button class="sync-btn" onclick="exportData()" title="Экспорт данных">📤</button>
