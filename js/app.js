@@ -1494,6 +1494,7 @@
                     
                     saveTopicLinks();
                     renderTopicLinks();
+                    renderLinkedTopicsInCards();
                 }
                 
                 // Убираем временную линию
@@ -1560,12 +1561,59 @@
                             topicPlatformLinks.splice(index, 1);
                             saveTopicLinks();
                             renderTopicLinks();
+                            renderLinkedTopicsInCards();
                         }
                     };
                     path.style.pointerEvents = 'stroke';
                     svg.appendChild(path);
                 }
             });
+        }
+
+        // Отображение связанных тем в карточках платформ
+        function renderLinkedTopicsInCards() {
+            // Удаляем старые блоки
+            document.querySelectorAll('.platform-linked-topics').forEach(el => el.remove());
+            
+            // Группируем связи по платформам
+            const linksByPlatform = {};
+            topicPlatformLinks.forEach((link, index) => {
+                if (!linksByPlatform[link.platformId]) {
+                    linksByPlatform[link.platformId] = [];
+                }
+                linksByPlatform[link.platformId].push({ ...link, index });
+            });
+            
+            // Добавляем темы в каждую карточку
+            Object.keys(linksByPlatform).forEach(platformId => {
+                const card = document.getElementById(platformId);
+                if (card) {
+                    const content = card.querySelector('.platform-content');
+                    if (content) {
+                        const linksDiv = document.createElement('div');
+                        linksDiv.className = 'platform-linked-topics';
+                        
+                        linksByPlatform[platformId].forEach(link => {
+                            const item = document.createElement('div');
+                            item.className = 'linked-topic-item';
+                            item.innerHTML = `
+                                <span class="topic-text">📎 ${link.topicText}</span>
+                                <button class="remove-link" onclick="removeLinkByIndex(${link.index})" title="Удалить связь">✕</button>
+                            `;
+                            linksDiv.appendChild(item);
+                        });
+                        
+                        content.parentNode.insertBefore(linksDiv, content.nextSibling);
+                    }
+                }
+            });
+        }
+
+        function removeLinkByIndex(index) {
+            topicPlatformLinks.splice(index, 1);
+            saveTopicLinks();
+            renderTopicLinks();
+            renderLinkedTopicsInCards();
         }
 
         // Обновляем связи при перемещении карточек
@@ -1579,7 +1627,10 @@
         // Загружаем связи при старте
         window.addEventListener('DOMContentLoaded', function() {
             loadTopicLinks();
-            setTimeout(renderTopicLinks, 500);
+            setTimeout(function() {
+                renderTopicLinks();
+                renderLinkedTopicsInCards();
+            }, 500);
         });
 
         // Обновляем связи при скролле
