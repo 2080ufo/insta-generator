@@ -58,8 +58,9 @@
             list.innerHTML = '';
             
             projects.forEach(project => {
+                const isActive = project.id === currentProjectId;
                 const item = document.createElement('div');
-                item.className = 'project-item' + (project.id === currentProjectId ? ' active' : '');
+                item.className = 'project-item' + (isActive ? ' active' : '');
                 item.innerHTML = `
                     <span class="icon">📁</span>
                     <span class="name">${project.name}</span>
@@ -67,6 +68,37 @@
                 `;
                 item.onclick = () => switchProject(project.id);
                 list.appendChild(item);
+                
+                // Показываем недели для активного проекта
+                if (isActive) {
+                    const weeksDiv = document.createElement('div');
+                    weeksDiv.className = 'project-weeks';
+                    
+                    const projWeeks = project.totalWeeks || 4;
+                    for (let i = 1; i <= projWeeks; i++) {
+                        const weekItem = document.createElement('div');
+                        weekItem.className = 'week-item' + (i === currentWeek ? ' active' : '');
+                        weekItem.innerHTML = '📅 ' + getWeekName(i);
+                        weekItem.onclick = (e) => {
+                            e.stopPropagation();
+                            switchWeek(i);
+                            toggleProjectDropdown();
+                        };
+                        weeksDiv.appendChild(weekItem);
+                    }
+                    
+                    // Кнопка добавить неделю
+                    const addWeekItem = document.createElement('div');
+                    addWeekItem.className = 'week-add';
+                    addWeekItem.innerHTML = '➕ Добавить неделю';
+                    addWeekItem.onclick = (e) => {
+                        e.stopPropagation();
+                        addWeek();
+                    };
+                    weeksDiv.appendChild(addWeekItem);
+                    
+                    list.appendChild(weeksDiv);
+                }
             });
         }
 
@@ -75,9 +107,16 @@
             if (project) {
                 document.getElementById('currentProjectName').textContent = project.name;
                 // Загружаем настройки недель проекта
-                totalWeeks = project.totalWeeks || 3;
+                totalWeeks = project.totalWeeks || 4;
                 currentWeek = project.currentWeek || 1;
-                renderWeeksNav();
+                updateWeekIndicator();
+            }
+        }
+        
+        function updateWeekIndicator() {
+            const indicator = document.getElementById('weekIndicator');
+            if (indicator) {
+                indicator.textContent = '📅 ' + getWeekName(currentWeek);
             }
         }
 
@@ -91,29 +130,12 @@
         }
 
         function toggleWeekDropdown() {
-            document.getElementById('weekDropdown').classList.toggle('open');
+            // Deprecated - недели теперь в меню проекта
         }
 
         function renderWeeksNav() {
-            const list = document.getElementById('weeksList');
-            list.innerHTML = '';
-            
-            for (let i = 1; i <= totalWeeks; i++) {
-                const item = document.createElement('div');
-                item.className = 'week-item' + (i === currentWeek ? ' active' : '');
-                item.innerHTML = `
-                    <span class="icon">📅</span>
-                    <span>${getWeekName(i)}</span>
-                `;
-                item.onclick = () => {
-                    switchWeek(i);
-                    toggleWeekDropdown();
-                };
-                list.appendChild(item);
-            }
-            
-            // Обновляем название текущей недели
-            document.getElementById('currentWeekName').textContent = getWeekName(currentWeek);
+            renderProjectsList();
+            updateWeekIndicator();
         }
 
         function switchWeek(weekNum) {

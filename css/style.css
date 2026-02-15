@@ -69,63 +69,40 @@
             transform: scale(1.05);
         }
 
-        /* НЕДЕЛИ */
-        .weeks-nav {
-            display: flex;
-            align-items: center;
+        /* ИНДИКАТОР НЕДЕЛИ */
+        .week-indicator {
             margin-left: auto;
-            gap: 10px;
-            position: relative;
+            margin-right: 15px;
+            padding: 6px 12px;
+            background: #252542;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #aaa;
         }
 
-        .week-current-btn {
-            background: #252542;
-            border: 1px solid #3a3a5a;
-            border-radius: 8px;
+        /* НЕДЕЛИ В ПРОЕКТЕ */
+        .project-weeks {
+            border-top: 1px solid #3a3a5a;
+            margin-top: 5px;
+            padding-top: 5px;
+        }
+
+        .project-weeks-title {
             padding: 8px 15px;
-            color: white;
-            font-size: 14px;
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .week-item {
+            padding: 10px 15px 10px 25px;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 8px;
-            transition: all 0.2s;
-        }
-
-        .week-current-btn:hover {
-            background: #3a3a5a;
-        }
-
-        .week-current-btn .arrow {
-            font-size: 10px;
-            opacity: 0.7;
-        }
-
-        .week-dropdown {
-            position: absolute;
-            top: 45px;
-            right: 0;
-            background: #252542;
-            border: 1px solid #3a3a5a;
-            border-radius: 10px;
-            min-width: 200px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-            display: none;
-            overflow: hidden;
-            z-index: 150;
-        }
-
-        .week-dropdown.open {
-            display: block;
-        }
-
-        .week-item {
-            padding: 12px 15px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
             transition: background 0.2s;
+            font-size: 13px;
         }
 
         .week-item:hover {
@@ -134,31 +111,24 @@
 
         .week-item.active {
             background: #667eea33;
-            border-left: 3px solid #667eea;
-        }
-
-        .week-item .icon {
-            font-size: 16px;
-        }
-
-        .week-divider {
-            height: 1px;
-            background: #3a3a5a;
+            color: #667eea;
         }
 
         .week-add {
-            padding: 12px 15px;
+            padding: 10px 15px 10px 25px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             color: #667eea;
+            font-size: 13px;
             transition: background 0.2s;
         }
 
         .week-add:hover {
             background: #3a3a5a;
         }
+
 
         .project-dropdown {
             position: absolute;
