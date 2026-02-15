@@ -640,12 +640,23 @@
 
         function rejectTopic(btn) {
             const item = btn.closest('.topic-item');
+            const topicId = item.dataset.topicId;
+            
             item.style.animation = 'none';
             item.style.opacity = '0';
             item.style.transform = 'translateX(-20px)';
             item.style.transition = 'all 0.3s ease';
             setTimeout(() => {
                 item.remove();
+                
+                // Удаляем связи этой темы с платформами
+                if (topicId) {
+                    topicPlatformLinks = topicPlatformLinks.filter(link => link.topicId !== topicId);
+                    saveTopicLinks();
+                    renderTopicLinks();
+                    renderLinkedTopicsInCards();
+                }
+                
                 saveState();
             }, 300);
         }
@@ -1510,13 +1521,28 @@
                     );
                     
                     if (!alreadyExists) {
+                        // Получаем английский перевод
+                        const topicItem = document.querySelector('[data-topic-id="' + linkingTopicId + '"]');
+                        const topicTextEl = topicItem?.querySelector('.topic-text');
+                        const topicRu = topicTextEl?.dataset.ru || linkingTopicText;
+                        const topicEn = topicTextEl?.dataset.en || '';
+                        
                         // Добавляем связь
                         topicPlatformLinks.push({
                             topicId: linkingTopicId,
                             topicText: linkingTopicText,
+                            topicRu: topicRu,
+                            topicEn: topicEn,
                             platformId: platformId,
                             platformName: platformName
                         });
+                        
+                        // Автоматически отмечаем тему как утверждённую (зелёная галочка)
+                        if (topicItem && !topicItem.classList.contains('accepted')) {
+                            topicItem.classList.remove('maybe');
+                            topicItem.classList.add('accepted');
+                            saveState();
+                        }
                         
                         saveTopicLinks();
                         renderTopicLinks();
@@ -1623,8 +1649,17 @@
                         linksByPlatform[platformId].forEach(link => {
                             const item = document.createElement('div');
                             item.className = 'linked-topic-item';
+                            item.dataset.linkIndex = link.index;
+                            
+                            // Показываем основной текст и английский перевод
+                            const mainText = link.topicRu || link.topicText;
+                            const enText = link.topicEn || '';
+                            
                             item.innerHTML = `
-                                <span class="topic-text">📎 ${link.topicText}</span>
+                                <div class="linked-topic-content">
+                                    <div class="linked-topic-main" contenteditable="true" data-link-index="${link.index}" onblur="updateLinkedTopicText(this, 'ru')">${mainText}</div>
+                                    ${enText ? `<div class="linked-topic-en" contenteditable="true" data-link-index="${link.index}" onblur="updateLinkedTopicText(this, 'en')">${enText}</div>` : ''}
+                                </div>
                                 <button class="remove-link" onclick="removeLinkByIndex(${link.index})" title="Удалить связь">✕</button>
                             `;
                             linksDiv.appendChild(item);
@@ -1641,6 +1676,22 @@
             saveTopicLinks();
             renderTopicLinks();
             renderLinkedTopicsInCards();
+        }
+        
+        // Обновление текста связанной темы при редактировании
+        function updateLinkedTopicText(element, lang) {
+            const linkIndex = parseInt(element.dataset.linkIndex);
+            const newText = element.textContent.trim();
+            
+            if (topicPlatformLinks[linkIndex]) {
+                if (lang === 'ru') {
+                    topicPlatformLinks[linkIndex].topicRu = newText;
+                    topicPlatformLinks[linkIndex].topicText = newText;
+                } else if (lang === 'en') {
+                    topicPlatformLinks[linkIndex].topicEn = newText;
+                }
+                saveTopicLinks();
+            }
         }
 
         // Обновляем связи при перемещении карточек
