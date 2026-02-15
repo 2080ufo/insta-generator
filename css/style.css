@@ -90,14 +90,34 @@
         }
 
         .project-item .expand-arrow {
-            font-size: 10px;
-            transition: transform 0.2s;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             margin-left: auto;
-            opacity: 0.5;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            opacity: 0.6;
         }
 
-        .project-item-wrapper.expanded .expand-arrow {
-            transform: rotate(90deg);
+        .project-item .expand-arrow::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-right: 2px solid #667eea;
+            border-bottom: 2px solid #667eea;
+            transform: rotate(-45deg);
+            transition: transform 0.3s ease;
+        }
+
+        .project-item:hover .expand-arrow {
+            opacity: 1;
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        .project-item-wrapper.expanded .expand-arrow::before {
+            transform: rotate(45deg);
         }
 
         .project-weeks {

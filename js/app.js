@@ -70,7 +70,7 @@
                     <span class="icon">📁</span>
                     <span class="name">${project.name}</span>
                     ${projects.length > 1 ? '<span class="delete" onclick="event.stopPropagation(); deleteProject(' + project.id + ')">✕</span>' : ''}
-                    <span class="expand-arrow">▶</span>
+                    <span class="expand-arrow"></span>
                 `;
                 item.onclick = (e) => {
                     if (isActive) {
