@@ -1504,17 +1504,24 @@
                     const platformId = platformCard.id;
                     const platformName = platformCard.querySelector('.platform-name')?.textContent || '';
                     
-                    // Добавляем связь
-                    topicPlatformLinks.push({
-                        topicId: linkingTopicId,
-                        topicText: linkingTopicText,
-                        platformId: platformId,
-                        platformName: platformName
-                    });
+                    // Проверяем, нет ли уже такой связи
+                    const alreadyExists = topicPlatformLinks.some(link => 
+                        link.topicId === linkingTopicId && link.platformId === platformId
+                    );
                     
-                    saveTopicLinks();
-                    renderTopicLinks();
-                    renderLinkedTopicsInCards();
+                    if (!alreadyExists) {
+                        // Добавляем связь
+                        topicPlatformLinks.push({
+                            topicId: linkingTopicId,
+                            topicText: linkingTopicText,
+                            platformId: platformId,
+                            platformName: platformName
+                        });
+                        
+                        saveTopicLinks();
+                        renderTopicLinks();
+                        renderLinkedTopicsInCards();
+                    }
                 }
                 
                 // Убираем временную линию
