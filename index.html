@@ -1,0 +1,2452 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Генератор постов</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #0f0f1a;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: white;
+            display: flex;
+            padding-top: 50px;
+        }
+
+        /* ШАПКА С ПРОЕКТОМ */
+        .top-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: #12121f;
+            border-bottom: 1px solid #2a2a4a;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 100;
+        }
+
+        .project-btn {
+            background: #252542;
+            border: 1px solid #3a3a5a;
+            border-radius: 8px;
+            padding: 8px 15px;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .project-btn:hover {
+            background: #3a3a5a;
+        }
+
+        .project-btn .arrow {
+            font-size: 10px;
+            opacity: 0.7;
+        }
+
+        .project-add-btn {
+            background: #667eea;
+            border: none;
+            border-radius: 8px;
+            width: 36px;
+            height: 36px;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: all 0.2s;
+        }
+
+        .project-add-btn:hover {
+            background: #7b8ef0;
+            transform: scale(1.05);
+        }
+
+        /* НЕДЕЛИ */
+        .weeks-nav {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+            gap: 10px;
+            position: relative;
+        }
+
+        .week-current-btn {
+            background: #252542;
+            border: 1px solid #3a3a5a;
+            border-radius: 8px;
+            padding: 8px 15px;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .week-current-btn:hover {
+            background: #3a3a5a;
+        }
+
+        .week-current-btn .arrow {
+            font-size: 10px;
+            opacity: 0.7;
+        }
+
+        .week-dropdown {
+            position: absolute;
+            top: 45px;
+            right: 0;
+            background: #252542;
+            border: 1px solid #3a3a5a;
+            border-radius: 10px;
+            min-width: 200px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            display: none;
+            overflow: hidden;
+            z-index: 150;
+        }
+
+        .week-dropdown.open {
+            display: block;
+        }
+
+        .week-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.2s;
+        }
+
+        .week-item:hover {
+            background: #3a3a5a;
+        }
+
+        .week-item.active {
+            background: #667eea33;
+            border-left: 3px solid #667eea;
+        }
+
+        .week-item .icon {
+            font-size: 16px;
+        }
+
+        .week-divider {
+            height: 1px;
+            background: #3a3a5a;
+        }
+
+        .week-add {
+            padding: 12px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #667eea;
+            transition: background 0.2s;
+        }
+
+        .week-add:hover {
+            background: #3a3a5a;
+        }
+
+        .project-dropdown {
+            position: absolute;
+            top: 45px;
+            left: 20px;
+            background: #252542;
+            border: 1px solid #3a3a5a;
+            border-radius: 10px;
+            min-width: 250px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            display: none;
+            overflow: hidden;
+        }
+
+        .project-dropdown.open {
+            display: block;
+        }
+
+        .project-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.2s;
+        }
+
+        .project-item:hover {
+            background: #3a3a5a;
+        }
+
+        .project-item.active {
+            background: #667eea33;
+            border-left: 3px solid #667eea;
+        }
+
+        .project-item .icon {
+            font-size: 18px;
+        }
+
+        .project-item .name {
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .project-item .delete {
+            opacity: 0;
+            color: #e74c3c;
+            font-size: 12px;
+        }
+
+        .project-item:hover .delete {
+            opacity: 1;
+        }
+
+        /* ЛЕВАЯ ПАНЕЛЬ — ТЕМЫ */
+        .left-panel {
+            width: 380px;
+            min-width: 380px;
+            background: #1a1a2e;
+            border-right: 1px solid #2a2a4a;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .panel-header {
+            margin-bottom: 20px;
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .context-box {
+            background: #252542;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+
+        .context-label {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .context-input {
+            width: 100%;
+            height: 80px;
+            background: #1a1a2e;
+            border: 1px solid #3a3a5a;
+            border-radius: 8px;
+            padding: 10px;
+            color: white;
+            font-size: 13px;
+            resize: none;
+            outline: none;
+        }
+
+        .context-input:focus {
+            border-color: #667eea;
+        }
+
+        .context-input::placeholder {
+            color: #555;
+        }
+
+        .attachments-area {
+            margin-top: 10px;
+        }
+
+        .attach-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .attach-btn {
+            background: #1a1a2e;
+            border: 1px solid #3a3a5a;
+            border-radius: 6px;
+            padding: 6px 10px;
+            color: #aaa;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .attach-btn:hover {
+            background: #3a3a5a;
+            color: white;
+        }
+
+        .attachments-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .attachment-item {
+            background: #1a1a2e;
+            border: 1px solid #3a3a5a;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 11px;
+            color: #ccc;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .attachment-item .remove {
+            cursor: pointer;
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .attachment-item .remove:hover {
+            color: #ff6b6b;
+        }
+
+        .attachment-item.image {
+            padding: 4px;
+        }
+
+        .attachment-item.image img {
+            max-width: 60px;
+            max-height: 40px;
+            border-radius: 4px;
+        }
+
+        .link-input-wrapper {
+            display: none;
+            margin-bottom: 10px;
+        }
+
+        .link-input-wrapper.visible {
+            display: flex;
+            gap: 8px;
+        }
+
+        .link-input {
+            flex: 1;
+            background: #1a1a2e;
+            border: 1px solid #3a3a5a;
+            border-radius: 6px;
+            padding: 8px 10px;
+            color: white;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .link-input:focus {
+            border-color: #667eea;
+        }
+
+        .link-add-btn {
+            background: #667eea;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .main-lang-box {
+            background: #252542;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+
+        .main-lang-select {
+            width: 100%;
+            background: #1a1a2e;
+            border: 1px solid #3a3a5a;
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: white;
+            font-size: 13px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .main-lang-select:focus {
+            border-color: #667eea;
+        }
+
+        .topic-text[data-ru][data-en] {
+            /* хранит оба языка */
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        .generate-btn:hover {
+            transform: scale(1.02);
+        }
+
+        /* СПИСОК ТЕМ */
+        .topics-list {
+            flex: 1;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .topic-item {
+            background: #252542;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .topic-content {
+            flex: 1;
+        }
+
+        .topic-text {
+            font-size: 13px;
+            line-height: 1.4;
+            color: #e0e0e0;
+            margin-bottom: 8px;
+        }
+
+        .topic-translation {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .translation-text {
+            flex: 1;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #888;
+            font-style: italic;
+        }
+
+        .translation-lang {
+            background: #1a1a2e;
+            border: 1px solid #3a3a5a;
+            border-radius: 5px;
+            padding: 4px 8px;
+            color: #aaa;
+            font-size: 11px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .translation-lang:focus {
+            border-color: #667eea;
+        }
+
+        .topic-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-accept, .btn-maybe, .btn-reject {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+
+        .btn-accept {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .btn-maybe {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-reject {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-accept:hover, .btn-maybe:hover, .btn-reject:hover {
+            transform: scale(1.1);
+        }
+
+        .topic-item.accepted {
+            border: 2px solid #2ecc71;
+            background: rgba(46, 204, 113, 0.1);
+        }
+
+        .topic-item.maybe {
+            border: 2px solid #f39c12;
+            background: rgba(243, 156, 18, 0.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .empty-state span {
+            font-size: 40px;
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        /* ПРАВАЯ ПАНЕЛЬ — ПЛАТФОРМЫ */
+        .right-panel {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .platform-card {
+            position: absolute;
+            width: 300px;
+            min-width: 200px;
+            min-height: 150px;
+            background: #1a1a2e;
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid #2a2a4a;
+            cursor: move;
+            user-select: none;
+            z-index: 10;
+        }
+
+        .platform-card:hover {
+            border-color: #3a3a5a;
+        }
+
+        .platform-card.dragging {
+            opacity: 0.9;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.4);
+            z-index: 100;
+        }
+
+        .add-platform-btn {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 5px 25px rgba(102, 126, 234, 0.4);
+            transition: all 0.2s;
+            z-index: 200;
+        }
+
+        .add-platform-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .platform-picker {
+            position: fixed;
+            bottom: 90px;
+            right: 25px;
+            background: #1a1a2e;
+            border: 1px solid #3a3a5a;
+            border-radius: 15px;
+            padding: 15px;
+            display: none;
+            z-index: 200;
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.5);
+        }
+
+        .platform-picker.open {
+            display: block;
+        }
+
+        .platform-picker-title {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .platform-picker-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .platform-picker-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .platform-picker-item:hover {
+            background: #252542;
+        }
+
+        .platform-picker-item .icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 6px;
+        }
+
+        .platform-picker-item .name {
+            font-size: 11px;
+            color: #aaa;
+        }
+
+        .platform-card .delete-card {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 24px;
+            height: 24px;
+            background: rgba(231, 76, 60, 0.2);
+            border: none;
+            border-radius: 6px;
+            color: #e74c3c;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .platform-card:hover .delete-card {
+            opacity: 1;
+        }
+
+        .platform-card .delete-card:hover {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .platform-card .resize-handle {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            cursor: se-resize;
+            opacity: 0.3;
+            transition: opacity 0.2s;
+        }
+
+        .platform-card .resize-handle::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            width: 10px;
+            height: 10px;
+            border-right: 2px solid #888;
+            border-bottom: 2px solid #888;
+        }
+
+        .platform-card:hover .resize-handle {
+            opacity: 1;
+        }
+
+        .platform-formats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .format-btn {
+            background: #252542;
+            border: 1px solid #3a3a5a;
+            border-radius: 6px;
+            padding: 6px 10px;
+            color: #aaa;
+            font-size: 11px;
+            cursor: grab;
+            transition: all 0.2s;
+        }
+
+        .format-btn:hover {
+            background: #3a3a5a;
+            color: white;
+        }
+
+        .format-btn.extracted {
+            display: none;
+        }
+
+        .format-btn.has-text {
+            background: #667eea33;
+            border-color: #667eea;
+        }
+
+        .format-btn.has-text::after {
+            content: ' ✓';
+            opacity: 0.7;
+        }
+
+        /* Вытянутые карточки форматов */
+        .format-card {
+            position: absolute;
+            background: #252542;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            font-size: 13px;
+            cursor: move;
+            user-select: none;
+            z-index: 50;
+            min-width: 200px;
+            width: 220px;
+        }
+
+        .format-card:hover {
+            background: #2a2a52;
+        }
+
+        .format-card .return-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 20px;
+            height: 20px;
+            background: #e74c3c;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .format-card:hover .return-btn {
+            opacity: 1;
+        }
+
+        .format-card-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #3a3a5a;
+            cursor: move;
+        }
+
+        .format-card-drag-handle {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 30px;
+            height: 40px;
+            cursor: move;
+        }
+
+        .format-section {
+            margin-bottom: 10px;
+        }
+
+        .format-section-label {
+            font-size: 10px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .format-card-context {
+            width: 100%;
+            min-height: 50px;
+            background: #1a1a2e;
+            border: 1px solid #3a3a5a;
+            border-radius: 6px;
+            padding: 8px;
+            color: #aaa;
+            font-size: 11px;
+            resize: vertical;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .format-card-context:focus {
+            border-color: #f39c12;
+        }
+
+        .format-card-context::placeholder {
+            color: #444;
+        }
+
+        .format-card-text {
+            width: 100%;
+            min-height: 80px;
+            background: #1a1a2e;
+            border: 1px solid #667eea55;
+            border-radius: 6px;
+            padding: 10px;
+            color: #e0e0e0;
+            font-size: 12px;
+            resize: vertical;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .format-card-text:focus {
+            border-color: #667eea;
+        }
+
+        .format-card-text::placeholder {
+            color: #555;
+        }
+
+        /* SVG линии */
+        .connections-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .connection-line {
+            stroke: #667eea;
+            stroke-width: 2;
+            fill: none;
+            opacity: 0.6;
+        }
+
+        .platform-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .platform-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .platform-icon.instagram {
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+        }
+
+        .platform-icon.pinterest {
+            background: #E60023;
+        }
+
+        .platform-icon.tiktok {
+            background: #000;
+            border: 1px solid #333;
+        }
+
+        .platform-icon.website {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .platform-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .platform-content {
+            min-height: 150px;
+            background: #252542;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ШАПКА С ПРОЕКТОМ -->
+    <div class="top-header">
+        <button class="project-btn" onclick="toggleProjectDropdown()">
+            <span class="icon">📁</span>
+            <span class="name" id="currentProjectName">Новый проект</span>
+            <span class="arrow">▼</span>
+        </button>
+        
+        <button class="project-add-btn" onclick="createNewProject()">＋</button>
+        
+        <div class="project-dropdown" id="projectDropdown">
+            <div id="projectsList"></div>
+        </div>
+        
+        <div class="weeks-nav">
+            <button class="week-current-btn" onclick="toggleWeekDropdown()">
+                <span>📅</span>
+                <span id="currentWeekName">Первая неделя</span>
+                <span class="arrow">▼</span>
+            </button>
+            
+            <div class="week-dropdown" id="weekDropdown">
+                <div id="weeksList"></div>
+                <div class="week-divider"></div>
+                <div class="week-add" onclick="addWeek()">
+                    <span>➕</span>
+                    <span>Добавить неделю</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ЛЕВАЯ ПАНЕЛЬ: ТЕМЫ -->
+    <div class="left-panel">
+        <div class="panel-header">
+            <div class="panel-title">🎯 Темы для постов</div>
+            
+            <div class="context-box">
+                <div class="context-label">📋 Контекст для генерации</div>
+                <textarea class="context-input" id="contextInput" placeholder="Опишите ваш бизнес, направление, целевую аудиторию..."></textarea>
+                
+                <div class="attachments-area">
+                    <div class="attach-buttons">
+                        <button class="attach-btn" onclick="document.getElementById('fileInput').click()">📎 Файл</button>
+                        <button class="attach-btn" onclick="document.getElementById('imageInput').click()">🖼 Картинка</button>
+                        <button class="attach-btn" onclick="document.getElementById('audioInput').click()">🎵 Аудио</button>
+                        <button class="attach-btn" onclick="toggleLinkInput()">🔗 Ссылка</button>
+                    </div>
+                    
+                    <input type="file" id="fileInput" style="display:none" onchange="addFile(this)" accept=".pdf,.doc,.docx,.txt">
+                    <input type="file" id="imageInput" style="display:none" onchange="addImage(this)" accept="image/*">
+                    <input type="file" id="audioInput" style="display:none" onchange="addAudio(this)" accept="audio/*">
+                    
+                    <div class="link-input-wrapper" id="linkInputWrapper">
+                        <input type="text" class="link-input" id="linkInput" placeholder="Вставьте ссылку...">
+                        <button class="link-add-btn" onclick="addLink()">+</button>
+                    </div>
+                    
+                    <div class="attachments-list" id="attachmentsList"></div>
+                </div>
+            </div>
+            
+            <div class="main-lang-box">
+                <div class="context-label">🌐 Основной язык</div>
+                <select class="main-lang-select" id="mainLangSelect" onchange="switchMainLang()">
+                    <option value="ru">🇷🇺 Русский</option>
+                    <option value="en">🇺🇸 English</option>
+                    <option value="de">🇩🇪 Deutsch</option>
+                    <option value="es">🇪🇸 Español</option>
+                    <option value="fr">🇫🇷 Français</option>
+                    <option value="uk">🇺🇦 Українська</option>
+                    <option value="pl">🇵🇱 Polski</option>
+                    <option value="it">🇮🇹 Italiano</option>
+                    <option value="pt">🇵🇹 Português</option>
+                    <option value="zh">🇨🇳 中文</option>
+                    <option value="ja">🇯🇵 日本語</option>
+                </select>
+            </div>
+            
+            <div class="main-lang-box">
+                <div class="context-label">🤖 AI модель</div>
+                <select class="main-lang-select" id="aiModelSelect" onchange="saveState()">
+                    <option value="claude-sonnet">Claude Sonnet 4</option>
+                    <option value="claude-opus">Claude Opus 4</option>
+                    <option value="gpt-4o">GPT-4o</option>
+                    <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                    <option value="gpt-3.5">GPT-3.5 Turbo</option>
+                    <option value="gemini-pro">Gemini Pro</option>
+                    <option value="gemini-ultra">Gemini Ultra</option>
+                    <option value="llama-3">Llama 3</option>
+                    <option value="mistral">Mistral Large</option>
+                </select>
+            </div>
+            
+            <button class="generate-btn" onclick="generateTopics()">✨ Сгенерировать темы</button>
+        </div>
+        
+        <div class="topics-list" id="topicsList">
+            <div class="empty-state">
+                <span>💡</span>
+                Нажмите кнопку выше,<br>чтобы сгенерировать темы
+            </div>
+        </div>
+    </div>
+
+    <!-- КНОПКА ДОБАВИТЬ ПЛАТФОРМУ -->
+    <button class="add-platform-btn" onclick="togglePlatformPicker()">＋</button>
+    
+    <div class="platform-picker" id="platformPicker">
+        <div class="platform-picker-title">Добавить платформу</div>
+        <div class="platform-picker-grid">
+            <div class="platform-picker-item" onclick="addPlatformCard('instagram')">
+                <div class="icon" style="background: linear-gradient(45deg, #f09433, #dc2743, #bc1888);">📷</div>
+                <div class="name">Instagram</div>
+            </div>
+            <div class="platform-picker-item" onclick="addPlatformCard('pinterest')">
+                <div class="icon" style="background: #E60023;">📌</div>
+                <div class="name">Pinterest</div>
+            </div>
+            <div class="platform-picker-item" onclick="addPlatformCard('tiktok')">
+                <div class="icon" style="background: #000; border: 1px solid #333;">🎵</div>
+                <div class="name">TikTok</div>
+            </div>
+            <div class="platform-picker-item" onclick="addPlatformCard('youtube')">
+                <div class="icon" style="background: #FF0000;">▶️</div>
+                <div class="name">YouTube</div>
+            </div>
+            <div class="platform-picker-item" onclick="addPlatformCard('facebook')">
+                <div class="icon" style="background: #1877F2;">📘</div>
+                <div class="name">Facebook</div>
+            </div>
+            <div class="platform-picker-item" onclick="addPlatformCard('twitter')">
+                <div class="icon" style="background: #000;">𝕏</div>
+                <div class="name">X / Twitter</div>
+            </div>
+            <div class="platform-picker-item" onclick="addPlatformCard('linkedin')">
+                <div class="icon" style="background: #0A66C2;">💼</div>
+                <div class="name">LinkedIn</div>
+            </div>
+            <div class="platform-picker-item" onclick="addPlatformCard('telegram')">
+                <div class="icon" style="background: #26A5E4;">✈️</div>
+                <div class="name">Telegram</div>
+            </div>
+            <div class="platform-picker-item" onclick="addPlatformCard('whatsapp')">
+                <div class="icon" style="background: #25D366;">💬</div>
+                <div class="name">WhatsApp</div>
+            </div>
+            <div class="platform-picker-item" onclick="addPlatformCard('snapchat')">
+                <div class="icon" style="background: #FFFC00;">👻</div>
+                <div class="name">Snapchat</div>
+            </div>
+            <div class="platform-picker-item" onclick="addPlatformCard('threads')">
+                <div class="icon" style="background: #000;">🧵</div>
+                <div class="name">Threads</div>
+            </div>
+            <div class="platform-picker-item" onclick="addPlatformCard('reddit')">
+                <div class="icon" style="background: #FF4500;">🤖</div>
+                <div class="name">Reddit</div>
+            </div>
+            <div class="platform-picker-item" onclick="addPlatformCard('vk')">
+                <div class="icon" style="background: #0077FF;">ВК</div>
+                <div class="name">ВКонтакте</div>
+            </div>
+            <div class="platform-picker-item" onclick="addPlatformCard('ok')">
+                <div class="icon" style="background: #EE8208;">🟠</div>
+                <div class="name">OK.ru</div>
+            </div>
+            <div class="platform-picker-item" onclick="addPlatformCard('website')">
+                <div class="icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">🌐</div>
+                <div class="name">Сайт</div>
+            </div>
+            <div class="platform-picker-item" onclick="addPlatformCard('blog')">
+                <div class="icon" style="background: #FF5722;">📝</div>
+                <div class="name">Блог</div>
+            </div>
+            <div class="platform-picker-item" onclick="addPlatformCard('email')">
+                <div class="icon" style="background: #4CAF50;">📧</div>
+                <div class="name">Email</div>
+            </div>
+            <div class="platform-picker-item" onclick="addPlatformCard('podcast')">
+                <div class="icon" style="background: #8E44AD;">🎙️</div>
+                <div class="name">Подкаст</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПРАВАЯ ПАНЕЛЬ: ПЛАТФОРМЫ -->
+    <div class="right-panel" id="rightPanel">
+        <svg class="connections-svg" id="connectionsSvg"></svg>
+        <!-- Карточки добавляются динамически -->
+    </div>
+
+    <script>
+        // ===== ПРОЕКТЫ И НЕДЕЛИ =====
+        let projects = [];
+        let currentProjectId = null;
+        let currentWeek = 1;
+        let totalWeeks = 4;
+
+        function loadProjects() {
+            const saved = localStorage.getItem('instaGeneratorProjects');
+            if (saved) {
+                projects = JSON.parse(saved);
+            }
+            
+            // Миграция старых данных
+            const oldState = localStorage.getItem('instaGeneratorState');
+            if (oldState && projects.length === 0) {
+                const oldData = JSON.parse(oldState);
+                projects.push({
+                    id: Date.now(),
+                    name: 'Мой проект',
+                    data: oldData
+                });
+                localStorage.removeItem('instaGeneratorState');
+                saveProjects();
+            }
+            
+            // Если нет проектов — создаём первый
+            if (projects.length === 0) {
+                projects.push({
+                    id: Date.now(),
+                    name: 'Новый проект',
+                    data: null
+                });
+            }
+            
+            // Загружаем последний активный проект
+            const lastProjectId = localStorage.getItem('instaGeneratorCurrentProject');
+            if (lastProjectId && projects.find(p => p.id == lastProjectId)) {
+                currentProjectId = parseInt(lastProjectId);
+            } else {
+                currentProjectId = projects[0].id;
+            }
+            
+            renderProjectsList();
+            updateProjectName();
+        }
+
+        function saveProjects() {
+            localStorage.setItem('instaGeneratorProjects', JSON.stringify(projects));
+            localStorage.setItem('instaGeneratorCurrentProject', currentProjectId);
+        }
+
+        function toggleProjectDropdown() {
+            document.getElementById('projectDropdown').classList.toggle('open');
+        }
+
+        function renderProjectsList() {
+            const list = document.getElementById('projectsList');
+            list.innerHTML = '';
+            
+            projects.forEach(project => {
+                const item = document.createElement('div');
+                item.className = 'project-item' + (project.id === currentProjectId ? ' active' : '');
+                item.innerHTML = `
+                    <span class="icon">📁</span>
+                    <span class="name">${project.name}</span>
+                    ${projects.length > 1 ? '<span class="delete" onclick="event.stopPropagation(); deleteProject(' + project.id + ')">✕</span>' : ''}
+                `;
+                item.onclick = () => switchProject(project.id);
+                list.appendChild(item);
+            });
+        }
+
+        function updateProjectName() {
+            const project = projects.find(p => p.id === currentProjectId);
+            if (project) {
+                document.getElementById('currentProjectName').textContent = project.name;
+                // Загружаем настройки недель проекта
+                totalWeeks = project.totalWeeks || 3;
+                currentWeek = project.currentWeek || 1;
+                renderWeeksNav();
+            }
+        }
+
+        const weekNames = ['Первая', 'Вторая', 'Третья', 'Четвёртая', 'Пятая', 'Шестая', 'Седьмая', 'Восьмая', 'Девятая', 'Десятая'];
+
+        function getWeekName(num) {
+            if (num <= weekNames.length) {
+                return weekNames[num - 1] + ' неделя';
+            }
+            return 'Неделя ' + num;
+        }
+
+        function toggleWeekDropdown() {
+            document.getElementById('weekDropdown').classList.toggle('open');
+        }
+
+        function renderWeeksNav() {
+            const list = document.getElementById('weeksList');
+            list.innerHTML = '';
+            
+            for (let i = 1; i <= totalWeeks; i++) {
+                const item = document.createElement('div');
+                item.className = 'week-item' + (i === currentWeek ? ' active' : '');
+                item.innerHTML = `
+                    <span class="icon">📅</span>
+                    <span>${getWeekName(i)}</span>
+                `;
+                item.onclick = () => {
+                    switchWeek(i);
+                    toggleWeekDropdown();
+                };
+                list.appendChild(item);
+            }
+            
+            // Обновляем название текущей недели
+            document.getElementById('currentWeekName').textContent = getWeekName(currentWeek);
+        }
+
+        function switchWeek(weekNum) {
+            // Сохраняем текущую неделю
+            saveCurrentWeekData();
+            
+            currentWeek = weekNum;
+            
+            // Сохраняем текущую неделю в проект
+            const project = projects.find(p => p.id === currentProjectId);
+            if (project) {
+                project.currentWeek = currentWeek;
+                saveProjects();
+            }
+            
+            // Загружаем данные новой недели
+            loadCurrentWeekData();
+            renderWeeksNav();
+        }
+
+        function addWeek() {
+            // Сохраняем текущую неделю
+            saveCurrentWeekData();
+            
+            totalWeeks++;
+            currentWeek = totalWeeks;
+            
+            // Переносим утверждённые темы с предыдущей недели
+            const project = projects.find(p => p.id === currentProjectId);
+            if (project) {
+                project.totalWeeks = totalWeeks;
+                project.currentWeek = currentWeek;
+                
+                // Копируем утверждённые темы
+                const prevWeekKey = 'week_' + (totalWeeks - 1);
+                const newWeekKey = 'week_' + totalWeeks;
+                
+                if (project.weeks && project.weeks[prevWeekKey]) {
+                    const prevData = project.weeks[prevWeekKey];
+                    if (prevData.topics) {
+                        const acceptedTopics = prevData.topics.filter(t => t.accepted);
+                        project.weeks[newWeekKey] = {
+                            ...getCurrentState(),
+                            topics: acceptedTopics
+                        };
+                    }
+                }
+                
+                saveProjects();
+            }
+            
+            loadCurrentWeekData();
+            renderWeeksNav();
+            toggleWeekDropdown();
+        }
+
+        function saveCurrentWeekData() {
+            const project = projects.find(p => p.id === currentProjectId);
+            if (project) {
+                if (!project.weeks) project.weeks = {};
+                const weekKey = 'week_' + currentWeek;
+                project.weeks[weekKey] = getCurrentState();
+                saveProjects();
+            }
+        }
+
+        function loadCurrentWeekData() {
+            const project = projects.find(p => p.id === currentProjectId);
+            if (project && project.weeks) {
+                const weekKey = 'week_' + currentWeek;
+                
+                // Собираем утверждённые темы со всех предыдущих недель
+                let inheritedTopics = [];
+                for (let i = 1; i < currentWeek; i++) {
+                    const prevKey = 'week_' + i;
+                    if (project.weeks[prevKey] && project.weeks[prevKey].topics) {
+                        const acceptedFromWeek = project.weeks[prevKey].topics.filter(t => t.accepted);
+                        acceptedFromWeek.forEach(topic => {
+                            // Проверяем, нет ли уже такой темы
+                            const exists = inheritedTopics.some(t => t.ru === topic.ru);
+                            if (!exists) {
+                                inheritedTopics.push({...topic, inherited: true});
+                            }
+                        });
+                    }
+                }
+                
+                if (project.weeks[weekKey]) {
+                    const weekData = project.weeks[weekKey];
+                    
+                    // Добавляем унаследованные темы, которых ещё нет
+                    if (weekData.topics) {
+                        inheritedTopics.forEach(inhTopic => {
+                            const exists = weekData.topics.some(t => t.ru === inhTopic.ru);
+                            if (!exists) {
+                                weekData.topics.unshift(inhTopic);
+                            }
+                        });
+                    } else {
+                        weekData.topics = inheritedTopics;
+                    }
+                    
+                    restoreState(weekData);
+                    return;
+                } else if (inheritedTopics.length > 0) {
+                    // Новая неделя — загружаем только унаследованные темы
+                    const newWeekData = {
+                        context: '',
+                        mainLang: 'ru',
+                        aiModel: 'claude-sonnet',
+                        topicIndex: 0,
+                        attachments: [],
+                        topics: inheritedTopics
+                    };
+                    restoreState(newWeekData);
+                    return;
+                }
+            }
+            clearUI();
+        }
+
+        function switchProject(projectId) {
+            // Сохраняем текущую неделю текущего проекта
+            saveCurrentWeekData();
+            
+            // Переключаемся
+            currentProjectId = projectId;
+            saveProjects();
+            
+            // Загружаем данные нового проекта
+            const project = projects.find(p => p.id === currentProjectId);
+            if (project) {
+                totalWeeks = project.totalWeeks || 3;
+                currentWeek = project.currentWeek || 1;
+            }
+            
+            loadCurrentWeekData();
+            
+            renderProjectsList();
+            updateProjectName();
+            toggleProjectDropdown();
+        }
+
+        function createNewProject() {
+            const name = prompt('Название проекта:');
+            if (name && name.trim()) {
+                // Сохраняем текущую неделю
+                saveCurrentWeekData();
+                
+                // Создаём новый
+                const newProject = {
+                    id: Date.now(),
+                    name: name.trim(),
+                    totalWeeks: 4,
+                    currentWeek: 1,
+                    weeks: {}
+                };
+                projects.push(newProject);
+                currentProjectId = newProject.id;
+                totalWeeks = 4;
+                currentWeek = 1;
+                
+                saveProjects();
+                
+                // Очищаем UI для нового проекта
+                clearUI();
+                
+                renderProjectsList();
+                updateProjectName();
+                
+                // Закрываем dropdown проектов если открыт
+                document.getElementById('projectDropdown').classList.remove('open');
+            }
+        }
+
+        function deleteProject(projectId) {
+            if (projects.length <= 1) return;
+            
+            if (confirm('Удалить этот проект?')) {
+                projects = projects.filter(p => p.id !== projectId);
+                
+                // Если удалили текущий — переключаемся на первый
+                if (currentProjectId === projectId) {
+                    currentProjectId = projects[0].id;
+                    loadCurrentProjectData();
+                    updateProjectName();
+                }
+                
+                saveProjects();
+                renderProjectsList();
+            }
+        }
+
+        function saveCurrentProjectData() {
+            const project = projects.find(p => p.id === currentProjectId);
+            if (project) {
+                project.data = getCurrentState();
+                saveProjects();
+            }
+        }
+
+        function loadCurrentProjectData() {
+            const project = projects.find(p => p.id === currentProjectId);
+            if (project && project.data) {
+                restoreState(project.data);
+            } else {
+                clearUI();
+            }
+        }
+
+        function clearUI() {
+            document.getElementById('contextInput').value = '';
+            document.getElementById('mainLangSelect').value = 'ru';
+            document.getElementById('topicsList').innerHTML = `
+                <div class="empty-state">
+                    <span>💡</span>
+                    Нажмите кнопку выше,<br>чтобы сгенерировать темы
+                </div>
+            `;
+            attachments = [];
+            renderAttachments();
+            topicIndex = 0;
+        }
+
+        // Закрытие dropdown при клике вне
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('projectDropdown');
+            const btn = document.querySelector('.project-btn');
+            if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+                dropdown.classList.remove('open');
+            }
+            
+            const weekDropdown = document.getElementById('weekDropdown');
+            const weekBtn = document.querySelector('.week-current-btn');
+            if (!weekDropdown.contains(e.target) && !weekBtn.contains(e.target)) {
+                weekDropdown.classList.remove('open');
+            }
+        });
+
+        // ===== СОХРАНЕНИЕ СОСТОЯНИЯ =====
+        function getCurrentState() {
+            const state = {
+                context: document.getElementById('contextInput').value,
+                mainLang: document.getElementById('mainLangSelect').value,
+                aiModel: document.getElementById('aiModelSelect').value,
+                topicIndex: topicIndex,
+                attachments: attachments,
+                topics: []
+            };
+            
+            document.querySelectorAll('.topic-item').forEach(item => {
+                const topicText = item.querySelector('.topic-text');
+                const translationText = item.querySelector('.translation-text');
+                const translationLang = item.querySelector('.translation-lang');
+                state.topics.push({
+                    ru: topicText ? topicText.dataset.ru : '',
+                    en: topicText ? topicText.dataset.en : '',
+                    translation: translationText ? translationText.textContent : '',
+                    lang: translationLang ? translationLang.value : 'en',
+                    accepted: item.classList.contains('accepted'),
+                    maybe: item.classList.contains('maybe')
+                });
+            });
+            
+            return state;
+        }
+
+        function saveState() {
+            saveCurrentWeekData();
+        }
+
+        function restoreState(state) {
+            document.getElementById('contextInput').value = state.context || '';
+            document.getElementById('mainLangSelect').value = state.mainLang || 'ru';
+            document.getElementById('aiModelSelect').value = state.aiModel || 'claude-sonnet';
+            topicIndex = state.topicIndex || 0;
+            
+            if (state.attachments) {
+                attachments = state.attachments;
+                renderAttachments();
+            } else {
+                attachments = [];
+                renderAttachments();
+            }
+            
+            if (state.topics && state.topics.length > 0) {
+                const list = document.getElementById('topicsList');
+                list.innerHTML = '';
+                
+                const mainLang = state.mainLang || 'ru';
+                
+                state.topics.forEach(topic => {
+                    const item = document.createElement('div');
+                    let itemClass = 'topic-item';
+                    if (topic.accepted) itemClass += ' accepted';
+                    if (topic.maybe) itemClass += ' maybe';
+                    item.className = itemClass;
+                    
+                    const ruText = topic.ru || '';
+                    const enText = topic.en || '';
+                    const mainText = mainLang === 'ru' ? ruText : enText;
+                    const secondText = mainLang === 'ru' ? enText : ruText;
+                    
+                    item.innerHTML = `
+                        <div class="topic-content">
+                            <div class="topic-text" data-ru="${ruText}" data-en="${enText}">${mainText}</div>
+                            <div class="topic-translation">
+                                <div class="translation-text" data-ru="${ruText}" data-en="${enText}">${secondText}</div>
+                                <select class="translation-lang" onchange="changeTranslationLang(this)">
+                                    <option value="en" ${topic.lang === 'en' ? 'selected' : ''}>EN</option>
+                                    <option value="de" ${topic.lang === 'de' ? 'selected' : ''}>DE</option>
+                                    <option value="es" ${topic.lang === 'es' ? 'selected' : ''}>ES</option>
+                                    <option value="fr" ${topic.lang === 'fr' ? 'selected' : ''}>FR</option>
+                                    <option value="it" ${topic.lang === 'it' ? 'selected' : ''}>IT</option>
+                                    <option value="pt" ${topic.lang === 'pt' ? 'selected' : ''}>PT</option>
+                                    <option value="zh" ${topic.lang === 'zh' ? 'selected' : ''}>ZH</option>
+                                    <option value="ja" ${topic.lang === 'ja' ? 'selected' : ''}>JA</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="topic-actions">
+                            <button class="btn-accept" onclick="acceptTopic(this)" title="Принять">✓</button>
+                            <button class="btn-maybe" onclick="maybeTopic(this)" title="Возможно">?</button>
+                            <button class="btn-reject" onclick="rejectTopic(this)" title="Удалить">✕</button>
+                        </div>
+                    `;
+                    list.appendChild(item);
+                });
+            } else {
+                document.getElementById('topicsList').innerHTML = `
+                    <div class="empty-state">
+                        <span>💡</span>
+                        Нажмите кнопку выше,<br>чтобы сгенерировать темы
+                    </div>
+                `;
+            }
+        }
+
+        // Загружаем при старте
+        window.addEventListener('DOMContentLoaded', function() {
+            loadProjects();
+            loadCurrentWeekData();
+        });
+
+        // Все доступные темы для демо (русский + английский)
+        const allDemoTopics = [
+            { ru: "5 ошибок начинающих фотографов, которые легко исправить", en: "5 beginner photographer mistakes that are easy to fix" },
+            { ru: "Как выбрать локацию для семейной съёмки", en: "How to choose a location for a family photoshoot" },
+            { ru: "Почему естественный свет — лучший друг фотографа", en: "Why natural light is a photographer's best friend" },
+            { ru: "Секреты работы с детьми на фотосессии", en: "Secrets of working with children during a photoshoot" },
+            { ru: "Как подготовить клиента к съёмке: чек-лист", en: "How to prepare a client for a shoot: checklist" },
+            { ru: "Тренды в семейной фотографии 2025", en: "Family photography trends 2025" },
+            { ru: "Как создать уютную атмосферу на съёмке", en: "How to create a cozy atmosphere during a shoot" },
+            { ru: "Работа с естественными эмоциями: советы", en: "Working with natural emotions: tips" },
+            { ru: "Идеи для весенней фотосессии", en: "Spring photoshoot ideas" },
+            { ru: "Почему важна предварительная встреча с клиентом", en: "Why a preliminary meeting with the client is important" },
+            { ru: "Как фотографировать большие семьи", en: "How to photograph large families" },
+            { ru: "Лучшее время дня для уличной съёмки", en: "Best time of day for outdoor shooting" },
+            { ru: "Как работать с застенчивыми детьми", en: "How to work with shy children" },
+            { ru: "Создание серии: рассказываем историю в фото", en: "Creating a series: telling a story through photos" },
+            { ru: "Гардероб для фотосессии: советы клиентам", en: "Wardrobe for a photoshoot: tips for clients" }
+        ];
+        
+        let topicIndex = 0;
+
+        function generateTopics() {
+            const list = document.getElementById('topicsList');
+            
+            // Убираем empty state если есть
+            const emptyState = list.querySelector('.empty-state');
+            if (emptyState) emptyState.remove();
+            
+            // Удаляем все темы БЕЗ галочки и БЕЗ "возможно"
+            const allItems = list.querySelectorAll('.topic-item');
+            allItems.forEach(item => {
+                if (!item.classList.contains('accepted') && !item.classList.contains('maybe')) {
+                    item.remove();
+                }
+            });
+            
+            // Берём следующие 5 тем
+            const newTopics = [];
+            for (let i = 0; i < 5; i++) {
+                newTopics.push(allDemoTopics[topicIndex % allDemoTopics.length]);
+                topicIndex++;
+            }
+            
+            // Добавляем 5 новых тем
+            const mainLang = document.getElementById('mainLangSelect').value;
+            
+            newTopics.forEach((topic, index) => {
+                setTimeout(() => {
+                    const item = document.createElement('div');
+                    item.className = 'topic-item';
+                    
+                    // Определяем что показывать сверху в зависимости от основного языка
+                    const mainText = mainLang === 'ru' ? topic.ru : topic.en;
+                    const secondText = mainLang === 'ru' ? topic.en : topic.ru;
+                    
+                    item.innerHTML = `
+                        <div class="topic-content">
+                            <div class="topic-text" data-ru="${topic.ru}" data-en="${topic.en}">${mainText}</div>
+                            <div class="topic-translation">
+                                <div class="translation-text" data-ru="${topic.ru}" data-en="${topic.en}">${secondText}</div>
+                                <select class="translation-lang" onchange="changeTranslationLang(this)">
+                                    <option value="en">EN</option>
+                                    <option value="de">DE</option>
+                                    <option value="es">ES</option>
+                                    <option value="fr">FR</option>
+                                    <option value="it">IT</option>
+                                    <option value="pt">PT</option>
+                                    <option value="zh">ZH</option>
+                                    <option value="ja">JA</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="topic-actions">
+                            <button class="btn-accept" onclick="acceptTopic(this)" title="Принять">✓</button>
+                            <button class="btn-maybe" onclick="maybeTopic(this)" title="Возможно">?</button>
+                            <button class="btn-reject" onclick="rejectTopic(this)" title="Удалить">✕</button>
+                        </div>
+                    `;
+                    list.appendChild(item);
+                    saveState();
+                }, index * 150);
+            });
+        }
+
+        function maybeTopic(btn) {
+            const item = btn.closest('.topic-item');
+            if (item.classList.contains('maybe')) {
+                item.classList.remove('maybe');
+            } else {
+                item.classList.remove('accepted');
+                item.classList.add('maybe');
+            }
+            saveState();
+        }
+
+        function changeTranslationLang(select) {
+            // Пока просто показываем что язык выбран
+            // В будущем здесь будет реальный перевод через API
+            saveState();
+        }
+
+        function switchMainLang() {
+            const mainLang = document.getElementById('mainLangSelect').value;
+            
+            document.querySelectorAll('.topic-item').forEach(item => {
+                const topicText = item.querySelector('.topic-text');
+                const translationText = item.querySelector('.translation-text');
+                
+                if (topicText && topicText.dataset.ru && topicText.dataset.en) {
+                    // Переключаем основной текст
+                    if (mainLang === 'ru') {
+                        topicText.textContent = topicText.dataset.ru;
+                        if (translationText) translationText.textContent = translationText.dataset.en;
+                    } else if (mainLang === 'en') {
+                        topicText.textContent = topicText.dataset.en;
+                        if (translationText) translationText.textContent = translationText.dataset.ru;
+                    }
+                }
+            });
+            
+            saveState();
+        }
+
+        function acceptTopic(btn) {
+            const item = btn.closest('.topic-item');
+            if (item.classList.contains('accepted')) {
+                item.classList.remove('accepted');
+            } else {
+                item.classList.remove('maybe');
+                item.classList.add('accepted');
+            }
+            saveState();
+        }
+
+        function rejectTopic(btn) {
+            const item = btn.closest('.topic-item');
+            item.style.animation = 'none';
+            item.style.opacity = '0';
+            item.style.transform = 'translateX(-20px)';
+            item.style.transition = 'all 0.3s ease';
+            setTimeout(() => {
+                item.remove();
+                saveState();
+            }, 300);
+        }
+
+        // Автосохранение при вводе
+        document.getElementById('contextInput').addEventListener('input', saveState);
+
+        // ===== ATTACHMENTS =====
+        let attachments = [];
+
+        function toggleLinkInput() {
+            const wrapper = document.getElementById('linkInputWrapper');
+            wrapper.classList.toggle('visible');
+            if (wrapper.classList.contains('visible')) {
+                document.getElementById('linkInput').focus();
+            }
+        }
+
+        function addLink() {
+            const input = document.getElementById('linkInput');
+            const url = input.value.trim();
+            if (url) {
+                attachments.push({ type: 'link', name: url, url: url });
+                renderAttachments();
+                input.value = '';
+                document.getElementById('linkInputWrapper').classList.remove('visible');
+                saveState();
+            }
+        }
+
+        function addFile(input) {
+            if (input.files[0]) {
+                const file = input.files[0];
+                attachments.push({ type: 'file', name: file.name });
+                renderAttachments();
+                saveState();
+            }
+            input.value = '';
+        }
+
+        function addImage(input) {
+            if (input.files[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    attachments.push({ type: 'image', name: file.name, data: e.target.result });
+                    renderAttachments();
+                    saveState();
+                };
+                reader.readAsDataURL(file);
+            }
+            input.value = '';
+        }
+
+        function addAudio(input) {
+            if (input.files[0]) {
+                const file = input.files[0];
+                attachments.push({ type: 'audio', name: file.name });
+                renderAttachments();
+                saveState();
+            }
+            input.value = '';
+        }
+
+        function removeAttachment(index) {
+            attachments.splice(index, 1);
+            renderAttachments();
+            saveState();
+        }
+
+        function renderAttachments() {
+            const list = document.getElementById('attachmentsList');
+            list.innerHTML = '';
+            
+            attachments.forEach((att, index) => {
+                const item = document.createElement('div');
+                item.className = 'attachment-item ' + att.type;
+                
+                if (att.type === 'image' && att.data) {
+                    item.innerHTML = `<img src="${att.data}" alt="${att.name}"><span class="remove" onclick="removeAttachment(${index})">✕</span>`;
+                } else if (att.type === 'link') {
+                    item.innerHTML = `🔗 <a href="${att.url}" target="_blank" style="color:#667eea">${att.name.substring(0,30)}...</a><span class="remove" onclick="removeAttachment(${index})">✕</span>`;
+                } else if (att.type === 'audio') {
+                    item.innerHTML = `🎵 ${att.name}<span class="remove" onclick="removeAttachment(${index})">✕</span>`;
+                } else {
+                    item.innerHTML = `📎 ${att.name}<span class="remove" onclick="removeAttachment(${index})">✕</span>`;
+                }
+                
+                list.appendChild(item);
+            });
+        }
+
+        // Enter для добавления ссылки
+        document.getElementById('linkInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') addLink();
+        });
+
+        // ===== ПЛАТФОРМЫ =====
+        const platformInfo = {
+            'instagram': { 
+                name: 'Instagram', icon: '📷', bg: 'linear-gradient(45deg, #f09433, #dc2743, #bc1888)',
+                formats: ['Пост', 'Stories', 'Reels', 'Карусель']
+            },
+            'pinterest': { 
+                name: 'Pinterest', icon: '📌', bg: '#E60023',
+                formats: ['Пин', 'Idea Pin', 'Доска']
+            },
+            'tiktok': { 
+                name: 'TikTok', icon: '🎵', bg: '#000',
+                formats: ['Видео', 'Stories', 'LIVE']
+            },
+            'youtube': { 
+                name: 'YouTube', icon: '▶️', bg: '#FF0000',
+                formats: ['Видео', 'Shorts', 'Community', 'Описание']
+            },
+            'facebook': { 
+                name: 'Facebook', icon: '📘', bg: '#1877F2',
+                formats: ['Пост', 'Stories', 'Reels', 'Группа']
+            },
+            'twitter': { 
+                name: 'X / Twitter', icon: '𝕏', bg: '#000',
+                formats: ['Твит', 'Тред', 'Цитата']
+            },
+            'linkedin': { 
+                name: 'LinkedIn', icon: '💼', bg: '#0A66C2',
+                formats: ['Пост', 'Статья', 'Карусель']
+            },
+            'telegram': { 
+                name: 'Telegram', icon: '✈️', bg: '#26A5E4',
+                formats: ['Пост', 'Канал', 'Чат']
+            },
+            'whatsapp': { 
+                name: 'WhatsApp', icon: '💬', bg: '#25D366',
+                formats: ['Статус', 'Сообщение', 'Рассылка']
+            },
+            'snapchat': { 
+                name: 'Snapchat', icon: '👻', bg: '#FFFC00',
+                formats: ['Snap', 'Story', 'Spotlight']
+            },
+            'threads': { 
+                name: 'Threads', icon: '🧵', bg: '#000',
+                formats: ['Пост', 'Ответ']
+            },
+            'reddit': { 
+                name: 'Reddit', icon: '🤖', bg: '#FF4500',
+                formats: ['Пост', 'Комментарий']
+            },
+            'vk': { 
+                name: 'ВКонтакте', icon: 'ВК', bg: '#0077FF',
+                formats: ['Пост', 'Stories', 'Клипы', 'Статья']
+            },
+            'ok': { 
+                name: 'OK.ru', icon: '🟠', bg: '#EE8208',
+                formats: ['Пост', 'Тема', 'Видео']
+            },
+            'website': { 
+                name: 'Сайт', icon: '🌐', bg: 'linear-gradient(135deg, #667eea, #764ba2)',
+                formats: ['Главная', 'Лендинг', 'О нас', 'Услуги']
+            },
+            'blog': { 
+                name: 'Блог', icon: '📝', bg: '#FF5722',
+                formats: ['Статья', 'Обзор', 'Гайд', 'Новость']
+            },
+            'email': { 
+                name: 'Email', icon: '📧', bg: '#4CAF50',
+                formats: ['Рассылка', 'Welcome', 'Промо', 'Дайджест']
+            },
+            'podcast': { 
+                name: 'Подкаст', icon: '🎙️', bg: '#8E44AD',
+                formats: ['Эпизод', 'Описание', 'Анонс']
+            }
+        };
+
+        let activeCards = [];
+
+        function togglePlatformPicker() {
+            document.getElementById('platformPicker').classList.toggle('open');
+        }
+
+        function loadActiveCards() {
+            const saved = localStorage.getItem('instaGeneratorActiveCards');
+            if (saved) {
+                activeCards = JSON.parse(saved);
+                activeCards.forEach(cardData => {
+                    createCardElement(cardData.platform, cardData.id, cardData.x, cardData.y, cardData.width, cardData.height, cardData.formats || [], cardData.extracted || []);
+                });
+            }
+            
+            // Загружаем format cards
+            const formatCardsSaved = localStorage.getItem('instaGeneratorFormatCards');
+            if (formatCardsSaved) {
+                const formatCards = JSON.parse(formatCardsSaved);
+                formatCards.forEach(fc => {
+                    createFormatCard(fc.parentId, fc.format, fc.x, fc.y, fc.text || '');
+                });
+                updateConnections();
+            }
+        }
+
+        function createFormatCard(parentId, formatName, x, y, text) {
+            const panel = document.getElementById('rightPanel');
+            
+            const formatCard = document.createElement('div');
+            formatCard.className = 'format-card';
+            formatCard.dataset.parentId = parentId;
+            formatCard.dataset.format = formatName;
+            formatCard.id = 'format-' + parentId + '-' + formatName.replace(/\s/g, '-');
+            formatCard.style.left = x + 'px';
+            formatCard.style.top = y + 'px';
+            
+            // Берём текст из хранилища или из переданного параметра
+            const textKey = getFormatTextKey(parentId, formatName);
+            const savedData = formatTexts[textKey] || { context: '', text: text || '' };
+            const ctx = typeof savedData === 'string' ? '' : (savedData.context || '');
+            const txt = typeof savedData === 'string' ? savedData : (savedData.text || '');
+            
+            formatCard.innerHTML = `
+                <button class="return-btn" onclick="returnFormat(this)">✕</button>
+                <div class="format-card-title">${formatName}</div>
+                <div class="format-section">
+                    <div class="format-section-label">📋 Контекст</div>
+                    <textarea class="format-card-context" placeholder="Идея, заметки, о чём пост..." oninput="saveFormatText(this)" onblur="saveFormatText(this)">${ctx}</textarea>
+                </div>
+                <div class="format-section">
+                    <div class="format-section-label">✨ Текст</div>
+                    <textarea class="format-card-text" placeholder="Сгенерированный текст..." oninput="saveFormatText(this)" onblur="saveFormatText(this)">${txt}</textarea>
+                </div>
+            `;
+            
+            panel.appendChild(formatCard);
+            
+            // Делаем перетаскиваемой (только за заголовок)
+            const titleEl = formatCard.querySelector('.format-card-title');
+            if (titleEl) {
+                titleEl.addEventListener('mousedown', function(e) {
+                    draggingFormat = formatCard;
+                    const rect = formatCard.getBoundingClientRect();
+                    formatOffsetX = e.clientX - rect.left;
+                    formatOffsetY = e.clientY - rect.top;
+                    e.preventDefault();
+                });
+            }
+        }
+
+        function saveActiveCards() {
+            const cards = [];
+            document.querySelectorAll('.platform-card').forEach(card => {
+                const activeFormats = [];
+                card.querySelectorAll('.format-btn.active').forEach(btn => {
+                    activeFormats.push(btn.textContent);
+                });
+                
+                const extractedFormats = [];
+                card.querySelectorAll('.format-btn.extracted').forEach(btn => {
+                    extractedFormats.push(btn.textContent);
+                });
+                
+                cards.push({
+                    id: card.id,
+                    platform: card.dataset.platform,
+                    x: parseInt(card.style.left) || 0,
+                    y: parseInt(card.style.top) || 0,
+                    width: card.offsetWidth,
+                    height: card.offsetHeight,
+                    formats: activeFormats,
+                    extracted: extractedFormats
+                });
+            });
+            
+            // Сохраняем позиции format cards
+            const formatCards = [];
+            document.querySelectorAll('.format-card').forEach(fc => {
+                const textarea = fc.querySelector('.format-card-text');
+                formatCards.push({
+                    parentId: fc.dataset.parentId,
+                    format: fc.dataset.format,
+                    x: parseInt(fc.style.left) || 0,
+                    y: parseInt(fc.style.top) || 0,
+                    text: textarea ? textarea.value : ''
+                });
+            });
+            
+            activeCards = cards;
+            localStorage.setItem('instaGeneratorActiveCards', JSON.stringify(cards));
+            localStorage.setItem('instaGeneratorFormatCards', JSON.stringify(formatCards));
+        }
+
+        function addPlatformCard(platform) {
+            const id = 'card-' + platform + '-' + Date.now();
+            createCardElement(platform, id, 50 + Math.random() * 100, 50 + Math.random() * 100, 300, 220, [], []);
+            saveActiveCards();
+            togglePlatformPicker();
+        }
+
+        function createCardElement(platform, id, x, y, width, height, activeFormats, extractedFormats) {
+            const info = platformInfo[platform];
+            const panel = document.getElementById('rightPanel');
+            
+            const card = document.createElement('div');
+            card.className = 'platform-card';
+            card.id = id;
+            card.dataset.platform = platform;
+            card.style.left = x + 'px';
+            card.style.top = y + 'px';
+            if (width) card.style.width = width + 'px';
+            if (height) card.style.height = height + 'px';
+            
+            const formatsHtml = info.formats.map(format => {
+                let classes = 'format-btn';
+                if (activeFormats && activeFormats.includes(format)) classes += ' active';
+                if (extractedFormats && extractedFormats.includes(format)) classes += ' extracted';
+                return `<button class="${classes}" onclick="toggleFormat(this)">${format}</button>`;
+            }).join('');
+            
+            card.innerHTML = `
+                <button class="delete-card" onclick="deleteCard('${id}')">✕</button>
+                <div class="platform-header">
+                    <div class="platform-icon" style="background: ${info.bg};">${info.icon}</div>
+                    <div class="platform-name">${info.name}</div>
+                </div>
+                <div class="platform-formats">
+                    ${formatsHtml}
+                </div>
+                <div class="platform-content">
+                    ...
+                </div>
+                <div class="resize-handle"></div>
+            `;
+            
+            panel.appendChild(card);
+            initCardDrag(card);
+            initCardResize(card);
+            initFormatDrag(card);
+            
+            // Помечаем кнопки у которых есть сохранённый текст
+            card.querySelectorAll('.format-btn').forEach(btn => {
+                const formatName = btn.textContent.replace(' ✓', '');
+                const textKey = getFormatTextKey(id, formatName);
+                const data = formatTexts[textKey];
+                if (data) {
+                    const hasContent = typeof data === 'string' 
+                        ? data.trim() 
+                        : ((data.context && data.context.trim()) || (data.text && data.text.trim()));
+                    if (hasContent) {
+                        btn.classList.add('has-text');
+                    }
+                }
+            });
+        }
+
+        function initCardResize(card) {
+            const handle = card.querySelector('.resize-handle');
+            if (!handle) return;
+            
+            handle.addEventListener('mousedown', function(e) {
+                e.stopPropagation();
+                resizingCard = card;
+                startWidth = card.offsetWidth;
+                startHeight = card.offsetHeight;
+                startX = e.clientX;
+                startY = e.clientY;
+                e.preventDefault();
+            });
+        }
+
+        function deleteCard(id) {
+            const card = document.getElementById(id);
+            if (card && confirm('Удалить эту карточку?')) {
+                card.remove();
+                saveActiveCards();
+            }
+        }
+
+        function toggleFormat(btn) {
+            btn.classList.toggle('active');
+            saveActiveCards();
+        }
+
+        // ===== ВЫТЯГИВАНИЕ ФОРМАТОВ =====
+        let extractedFormats = [];
+        let draggingFormat = null;
+        let formatOffsetX, formatOffsetY;
+        
+        // Хранилище текстов форматов (сохраняется даже когда карточка свёрнута)
+        let formatTexts = {};
+        
+        function loadFormatTexts() {
+            const saved = localStorage.getItem('instaGeneratorFormatTexts');
+            if (saved) {
+                formatTexts = JSON.parse(saved);
+            }
+        }
+        
+        function saveFormatTexts() {
+            localStorage.setItem('instaGeneratorFormatTexts', JSON.stringify(formatTexts));
+        }
+        
+        function getFormatTextKey(parentId, formatName) {
+            return parentId + '::' + formatName;
+        }
+        
+        function saveFormatText(textarea) {
+            const card = textarea.closest('.format-card');
+            const parentId = card.dataset.parentId;
+            const formatName = card.dataset.format;
+            const textKey = getFormatTextKey(parentId, formatName);
+            
+            const contextArea = card.querySelector('.format-card-context');
+            const textArea = card.querySelector('.format-card-text');
+            
+            formatTexts[textKey] = {
+                context: contextArea ? contextArea.value : '',
+                text: textArea ? textArea.value : ''
+            };
+            saveFormatTexts();
+        }
+
+        function initFormatDrag(card) {
+            card.querySelectorAll('.format-btn').forEach(btn => {
+                btn.addEventListener('mousedown', function(e) {
+                    if (e.target.closest('.delete-card')) return;
+                    
+                    const parentCard = btn.closest('.platform-card');
+                    const parentId = parentCard.id;
+                    const formatName = btn.textContent;
+                    
+                    // Создаём вытянутую карточку
+                    const panel = document.getElementById('rightPanel');
+                    const panelRect = panel.getBoundingClientRect();
+                    const parentRect = parentCard.getBoundingClientRect();
+                    
+                    const formatCard = document.createElement('div');
+                    formatCard.className = 'format-card';
+                    formatCard.dataset.parentId = parentId;
+                    formatCard.dataset.format = formatName;
+                    formatCard.id = 'format-' + parentId + '-' + formatName.replace(/\s/g, '-');
+                    
+                    const startX = parentRect.right - panelRect.left + 20;
+                    const startY = parentRect.top - panelRect.top + 50;
+                    
+                    formatCard.style.left = startX + 'px';
+                    formatCard.style.top = startY + 'px';
+                    
+                    const textKey = getFormatTextKey(parentId, formatName);
+                    const savedData = formatTexts[textKey] || { context: '', text: '' };
+                    const ctx = typeof savedData === 'string' ? '' : (savedData.context || '');
+                    const txt = typeof savedData === 'string' ? savedData : (savedData.text || '');
+                    
+                    formatCard.innerHTML = `
+                        <button class="return-btn" onclick="returnFormat(this)">✕</button>
+                        <div class="format-card-title">${formatName}</div>
+                        <div class="format-section">
+                            <div class="format-section-label">📋 Контекст</div>
+                            <textarea class="format-card-context" placeholder="Идея, заметки, о чём пост..." oninput="saveFormatText(this)" onblur="saveFormatText(this)">${ctx}</textarea>
+                        </div>
+                        <div class="format-section">
+                            <div class="format-section-label">✨ Текст</div>
+                            <textarea class="format-card-text" placeholder="Сгенерированный текст..." oninput="saveFormatText(this)" onblur="saveFormatText(this)">${txt}</textarea>
+                        </div>
+                    `;
+                    
+                    panel.appendChild(formatCard);
+                    
+                    // Делаем перетаскиваемой за заголовок
+                    const titleEl = formatCard.querySelector('.format-card-title');
+                    if (titleEl) {
+                        titleEl.addEventListener('mousedown', function(e) {
+                            draggingFormat = formatCard;
+                            const rect = formatCard.getBoundingClientRect();
+                            formatOffsetX = e.clientX - rect.left;
+                            formatOffsetY = e.clientY - rect.top;
+                            e.preventDefault();
+                        });
+                    }
+                    
+                    // Помечаем кнопку как извлечённую
+                    btn.classList.add('extracted');
+                    
+                    // Начинаем перетаскивание
+                    draggingFormat = formatCard;
+                    formatOffsetX = 50;
+                    formatOffsetY = 15;
+                    
+                    updateConnections();
+                    saveActiveCards();
+                    
+                    e.preventDefault();
+                    e.stopPropagation();
+                });
+            });
+        }
+
+        function returnFormat(btn) {
+            const formatCard = btn.closest('.format-card');
+            const parentId = formatCard.dataset.parentId;
+            const formatName = formatCard.dataset.format;
+            
+            // Сохраняем текст перед сворачиванием
+            const contextArea = formatCard.querySelector('.format-card-context');
+            const textArea = formatCard.querySelector('.format-card-text');
+            const textKey = getFormatTextKey(parentId, formatName);
+            formatTexts[textKey] = {
+                context: contextArea ? contextArea.value : '',
+                text: textArea ? textArea.value : ''
+            };
+            saveFormatTexts();
+            
+            // Возвращаем кнопку
+            const parentCard = document.getElementById(parentId);
+            if (parentCard) {
+                parentCard.querySelectorAll('.format-btn').forEach(b => {
+                    const btnName = b.textContent.replace(' ✓', '');
+                    if (btnName === formatName) {
+                        b.classList.remove('extracted');
+                        // Показываем что есть текст
+                        const data = formatTexts[textKey];
+                        const hasContent = (data.context && data.context.trim()) || (data.text && data.text.trim());
+                        if (hasContent) {
+                            b.classList.add('has-text');
+                        } else {
+                            b.classList.remove('has-text');
+                        }
+                    }
+                });
+            }
+            
+            formatCard.remove();
+            updateConnections();
+            saveActiveCards();
+        }
+
+        function updateConnections() {
+            const svg = document.getElementById('connectionsSvg');
+            svg.innerHTML = '';
+            
+            document.querySelectorAll('.format-card').forEach(formatCard => {
+                const parentId = formatCard.dataset.parentId;
+                const parentCard = document.getElementById(parentId);
+                
+                if (parentCard) {
+                    const panel = document.getElementById('rightPanel');
+                    const panelRect = panel.getBoundingClientRect();
+                    
+                    const parentRect = parentCard.getBoundingClientRect();
+                    const formatRect = formatCard.getBoundingClientRect();
+                    
+                    const x1 = parentRect.right - panelRect.left;
+                    const y1 = parentRect.top - panelRect.top + parentRect.height / 2;
+                    const x2 = formatRect.left - panelRect.left;
+                    const y2 = formatRect.top - panelRect.top + formatRect.height / 2;
+                    
+                    // Кривая Безье
+                    const midX = (x1 + x2) / 2;
+                    
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    path.setAttribute('d', `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`);
+                    path.setAttribute('class', 'connection-line');
+                    svg.appendChild(path);
+                }
+            });
+        }
+
+        // Перетаскивание format cards
+        document.addEventListener('mousemove', function(e) {
+            if (draggingFormat) {
+                const panel = document.getElementById('rightPanel');
+                const panelRect = panel.getBoundingClientRect();
+                
+                let newX = e.clientX - panelRect.left - formatOffsetX;
+                let newY = e.clientY - panelRect.top - formatOffsetY;
+                
+                draggingFormat.style.left = newX + 'px';
+                draggingFormat.style.top = newY + 'px';
+                
+                updateConnections();
+            }
+        });
+
+        document.addEventListener('mouseup', function() {
+            if (draggingFormat) {
+                // Проверяем, находится ли карточка над родительской
+                const parentId = draggingFormat.dataset.parentId;
+                const parentCard = document.getElementById(parentId);
+                
+                if (parentCard) {
+                    const parentRect = parentCard.getBoundingClientRect();
+                    const formatRect = draggingFormat.getBoundingClientRect();
+                    
+                    // Центр format card
+                    const formatCenterX = formatRect.left + formatRect.width / 2;
+                    const formatCenterY = formatRect.top + formatRect.height / 2;
+                    
+                    // Проверяем пересечение
+                    if (formatCenterX >= parentRect.left && 
+                        formatCenterX <= parentRect.right &&
+                        formatCenterY >= parentRect.top && 
+                        formatCenterY <= parentRect.bottom) {
+                        
+                        // Сохраняем текст перед сворачиванием
+                        const formatName = draggingFormat.dataset.format;
+                        const contextArea = draggingFormat.querySelector('.format-card-context');
+                        const textArea = draggingFormat.querySelector('.format-card-text');
+                        const textKey = getFormatTextKey(parentId, formatName);
+                        formatTexts[textKey] = {
+                            context: contextArea ? contextArea.value : '',
+                            text: textArea ? textArea.value : ''
+                        };
+                        saveFormatTexts();
+                        
+                        // Возвращаем формат обратно
+                        parentCard.querySelectorAll('.format-btn').forEach(b => {
+                            const btnName = b.textContent.replace(' ✓', '');
+                            if (btnName === formatName) {
+                                b.classList.remove('extracted');
+                                // Показываем что есть текст
+                                const data = formatTexts[textKey];
+                                const hasContent = (data.context && data.context.trim()) || (data.text && data.text.trim());
+                                if (hasContent) {
+                                    b.classList.add('has-text');
+                                } else {
+                                    b.classList.remove('has-text');
+                                }
+                            }
+                        });
+                        draggingFormat.remove();
+                        updateConnections();
+                    }
+                }
+                
+                saveActiveCards();
+                draggingFormat = null;
+            }
+        });
+
+        // Инициализация перетаскивания для существующих format cards
+        document.querySelectorAll('.format-card').forEach(fc => {
+            fc.addEventListener('mousedown', function(e) {
+                if (e.target.closest('.return-btn')) return;
+                
+                draggingFormat = fc;
+                const rect = fc.getBoundingClientRect();
+                formatOffsetX = e.clientX - rect.left;
+                formatOffsetY = e.clientY - rect.top;
+                
+                e.preventDefault();
+            });
+        });
+
+        function initCardDrag(card) {
+            card.addEventListener('mousedown', function(e) {
+                if (e.target.closest('.platform-content') || e.target.closest('.delete-card')) return;
+                
+                draggedCard = card;
+                draggedCard.classList.add('dragging');
+                
+                const rect = card.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+                
+                e.preventDefault();
+            });
+        }
+
+        // Drag & Resize functionality
+        let draggedCard = null;
+        let offsetX, offsetY;
+        let resizingCard = null;
+        let startWidth, startHeight, startX, startY;
+
+        document.addEventListener('mousemove', function(e) {
+            // Resize
+            if (resizingCard) {
+                const newWidth = startWidth + (e.clientX - startX);
+                const newHeight = startHeight + (e.clientY - startY);
+                
+                resizingCard.style.width = Math.max(200, newWidth) + 'px';
+                resizingCard.style.height = Math.max(150, newHeight) + 'px';
+                return;
+            }
+            
+            if (!draggedCard) return;
+            
+            const panel = document.getElementById('rightPanel');
+            const panelRect = panel.getBoundingClientRect();
+            
+            let newX = e.clientX - panelRect.left - offsetX;
+            let newY = e.clientY - panelRect.top - offsetY;
+            
+            // Ограничиваем в пределах панели
+            newX = Math.max(0, Math.min(newX, panelRect.width - draggedCard.offsetWidth));
+            newY = Math.max(0, Math.min(newY, panelRect.height - draggedCard.offsetHeight));
+            
+            draggedCard.style.left = newX + 'px';
+            draggedCard.style.top = newY + 'px';
+            
+            updateConnections();
+        });
+
+        document.addEventListener('mouseup', function() {
+            if (draggedCard) {
+                draggedCard.classList.remove('dragging');
+                saveActiveCards();
+                updateConnections();
+                draggedCard = null;
+            }
+            if (resizingCard) {
+                saveActiveCards();
+                updateConnections();
+                resizingCard = null;
+            }
+        });
+
+        // Закрытие picker при клике вне
+        document.addEventListener('click', function(e) {
+            const picker = document.getElementById('platformPicker');
+            const btn = document.querySelector('.add-platform-btn');
+            if (!picker.contains(e.target) && !btn.contains(e.target)) {
+                picker.classList.remove('open');
+            }
+        });
+
+        // Загружаем карточки при старте
+        window.addEventListener('DOMContentLoaded', function() {
+            loadFormatTexts();
+            loadActiveCards();
+        });
+    </script>
+</body>
+</html>
